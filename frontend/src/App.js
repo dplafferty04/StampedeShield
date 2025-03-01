@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
@@ -8,6 +8,22 @@ function App() {
   const [result, setResult] = useState(null);
   const [videoURL, setVideoURL] = useState(null);
   const [heatmapURL, setHeatmapURL] = useState(null);
+  const [latestFrame, setLatestFrame] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [peopleCount, setPeopleCount] = useState(0);
+
+  useEffect(() => {
+    const ws = new WebSocket("ws://127.0.0.1:8000/ws");
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setLatestFrame(`data:image/jpeg;base64,${data.frame}`); // Update only the latest frame
+      setPeopleCount(data.people_in_frame);
+      setProgress(data.progress.toFixed(2));
+    };
+
+    return () => ws.close();
+  }, []);
 
   const handleFileUpload = async () => {
     if (!selectedFile) {
@@ -17,6 +33,9 @@ function App() {
 
     setLoading(true);
     setResult(null);
+    setLatestFrame(null);
+    setPeopleCount(0);
+    setProgress(0);
     setVideoURL(URL.createObjectURL(selectedFile)); // Show original video immediately
 
     const formData = new FormData();
@@ -24,10 +43,7 @@ function App() {
 
     try {
       const response = await axios.post("http://127.0.0.1:8000/detect/", formData);
-
       setResult(response.data);
-
-      // If the API returns a valid heatmap URL, use it; otherwise, use a placeholder
       setHeatmapURL(response.data.heatmap_video_url || "https://www.w3schools.com/html/mov_bbb.mp4");
     } catch (error) {
       console.error("Error uploading video:", error);
@@ -58,20 +74,30 @@ function App() {
 
       {loading && <p className="loading-text">Analyzing video... Please wait.</p>}
 
+      <div className="progress-section">
+        <h3>Processing Progress: {progress}%</h3>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+        </div>
+      </div>
+
+      <h2>Total People Detected in Frame: {peopleCount}</h2>
+
+      <div className="live-frame">
+        {latestFrame ? (
+          <img src={latestFrame} alt="Processed Frame" className="frame-preview" />
+        ) : (
+          <p>No frame available yet</p>
+        )}
+      </div>
+
       {result && (
         <div className="result-section">
-          <h2>Detection Results 📊</h2>
+          <h2>Final Detection Results 📊</h2>
           <div className="result-content">
             <p><strong>Total People Detected:</strong> {result.total_people_detected}</p>
             <p><strong>Average People Per Frame:</strong> {result.average_people_per_frame}</p>
             <p><strong>Processing Time:</strong> {result.processing_time_seconds} sec</p>
-          </div>
-
-          <h3>Frame-wise Count:</h3>
-          <div className="frame-count">
-            {result.frame_wise_count.map((count, index) => (
-              <p key={index}>Frame {index + 1}: {count} people</p>
-            ))}
           </div>
         </div>
       )}
@@ -84,7 +110,7 @@ function App() {
           </div>
           <div className="video-container">
             <h3>AI Generated Heatmap</h3>
-            <video src={videoURL} controls className="video-player" />
+            <video src={heatmapURL} controls className="video-player" />
           </div>
         </div>
       )}
