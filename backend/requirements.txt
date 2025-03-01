@@ -1,0 +1,6 @@
+fastapi==0.115.10
+uvicorn==0.34.0
+python-multipart==0.0.9  # Required for handling file uploads
+opencv-python==4.11.0.86  # OpenCV for image processing
+numpy==1.26.4  # NumPy for numerical operations
+ultralytics==8.3.81  # YOLOv8 for object detection
