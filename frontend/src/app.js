@@ -1,23 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import axios from "axios";
 
 function App() {
+  const [peopleCount, setPeopleCount] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileUpload = async () => {
+    const formData = new FormData();
+    formData.append("video", selectedFile);
+
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/detect/", formData);
+      setPeopleCount(response.data.people_count);
+    } catch (error) {
+      console.error("Error uploading video:", error);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>StampedeShield</h1>
+      <input type="file" onChange={(e) => setSelectedFile(e.target.files[0])} />
+      <button onClick={handleFileUpload}>Upload Video</button>
+      {peopleCount !== null && <h2>People Count: {peopleCount}</h2>}
     </div>
   );
 }
