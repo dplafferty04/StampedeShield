@@ -125,6 +125,5 @@ async def detect_crowd(video: UploadFile = File(...)):
         "average_people_per_frame": round(avg_people_per_frame, 2),
         "frame_wise_count": people_count_per_frame,
         "processing_time_seconds": round(process_time, 2),
-        "total_frames_processed": frame_count,
-        "processed_video_path": output_video_path
+        "total_frames_processed": frame_count
     }
