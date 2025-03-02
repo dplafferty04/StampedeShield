@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import "./App.css";
+import WebSocketHandler from "./WebSocketHandler"; // ✅ Import WebSocketHandler
 
 function App() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -10,26 +11,7 @@ function App() {
   const [heatmapURL, setHeatmapURL] = useState(null);
   const [progress, setProgress] = useState(0);
   const [peopleCount, setPeopleCount] = useState(0);
-
-  const originalVideoRef = useRef(null);
-  const heatmapVideoRef = useRef(null);
-  const processingVideoRef = useRef(null);
-  const syncingRef = useRef(false); // Prevents event loops
-
-  useEffect(() => {
-    const ws = new WebSocket("ws://127.0.0.1:8000/ws");
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setPeopleCount(data.people_in_frame || 0); // Ensure people count defaults to 0
-      setProgress(data.progress !== undefined ? data.progress.toFixed(2) : 0);
-    };
-
-    ws.onerror = (error) => console.error("WebSocket error:", error);
-    ws.onclose = () => console.warn("WebSocket closed.");
-
-    return () => ws.close();
-  }, []);
+  const [latestFrame, setLatestFrame] = useState(null); // ✅ WebSocket live frame
 
   const handleFileUpload = async () => {
     if (!selectedFile) {
@@ -41,16 +23,9 @@ function App() {
     setResult(null);
     setPeopleCount(0);
     setProgress(0);
-
-    // Ensure the video remains visible while processing
+    
+    // ✅ Keep the original video URL
     setVideoURL(URL.createObjectURL(selectedFile));
-
-    // Autoplay the processing video
-    setTimeout(() => {
-      if (processingVideoRef.current) {
-        processingVideoRef.current.play().catch((err) => console.warn("Autoplay blocked:", err));
-      }
-    }, 500);
 
     const formData = new FormData();
     formData.append("video", selectedFile);
@@ -67,84 +42,23 @@ function App() {
     setLoading(false);
   };
 
-  // Function to synchronize videos
-  const syncVideos = (source, target) => {
-    if (!source || !target || syncingRef.current) return;
-    syncingRef.current = true;
-
-    if (Math.abs(source.currentTime - target.currentTime) > 0.1) {
-      target.currentTime = source.currentTime;
-    }
-    if (source.paused !== target.paused) {
-      source.paused ? target.pause() : target.play();
-    }
-
-    requestAnimationFrame(() => (syncingRef.current = false));
-  };
-
-  useEffect(() => {
-    const originalVideo = originalVideoRef.current;
-    const heatmapVideo = heatmapVideoRef.current;
-
-    if (originalVideo && heatmapVideo) {
-      const handlePlayPause = (event) => {
-        const otherVideo = event.target === originalVideo ? heatmapVideo : originalVideo;
-        syncVideos(event.target, otherVideo);
-      };
-
-      const handleTimeUpdate = (event) => {
-        const otherVideo = event.target === originalVideo ? heatmapVideo : originalVideo;
-        syncVideos(event.target, otherVideo);
-      };
-
-      originalVideo.addEventListener("play", handlePlayPause);
-      originalVideo.addEventListener("pause", handlePlayPause);
-      originalVideo.addEventListener("seeked", handleTimeUpdate);
-      originalVideo.addEventListener("timeupdate", handleTimeUpdate);
-
-      heatmapVideo.addEventListener("play", handlePlayPause);
-      heatmapVideo.addEventListener("pause", handlePlayPause);
-      heatmapVideo.addEventListener("seeked", handleTimeUpdate);
-      heatmapVideo.addEventListener("timeupdate", handleTimeUpdate);
-
-      return () => {
-        originalVideo.removeEventListener("play", handlePlayPause);
-        originalVideo.removeEventListener("pause", handlePlayPause);
-        originalVideo.removeEventListener("seeked", handleTimeUpdate);
-        originalVideo.removeEventListener("timeupdate", handleTimeUpdate);
-
-        heatmapVideo.removeEventListener("play", handlePlayPause);
-        heatmapVideo.removeEventListener("pause", handlePlayPause);
-        heatmapVideo.removeEventListener("seeked", handleTimeUpdate);
-        heatmapVideo.removeEventListener("timeupdate", handleTimeUpdate);
-      };
-    }
-  }, [videoURL, heatmapURL]);
-
-  useEffect(() => {
-    if (!loading && videoURL && heatmapURL) {
-      // Autoplay both videos when they appear after processing
-      setTimeout(() => {
-        if (originalVideoRef.current) originalVideoRef.current.play().catch(() => {});
-        if (heatmapVideoRef.current) heatmapVideoRef.current.play().catch(() => {});
-      }, 500);
-    }
-  }, [loading, videoURL, heatmapURL]);
-
   return (
     <div className="container">
+      {/* ✅ WebSocket Handler for Real-time Frames */}
+      <WebSocketHandler
+        setLatestFrame={setLatestFrame}
+        setPeopleCount={setPeopleCount}
+        setProgress={setProgress}
+        setCurrentFrame={() => {}} // Not needed for now
+      />
+
       <header>
         <h1>Stampede Shield 🛡️</h1>
         <p>Upload a video to analyze crowd movement and density.</p>
       </header>
 
       <div className="upload-section">
-        <input
-          type="file"
-          accept="video/*"
-          className="file-input"
-          onChange={(e) => setSelectedFile(e.target.files[0])}
-        />
+        <input type="file" accept="video/*" className="file-input" onChange={(e) => setSelectedFile(e.target.files[0])} />
         <button onClick={handleFileUpload} disabled={loading} className="upload-btn">
           {loading ? "Processing..." : "Upload & Analyze"}
         </button>
@@ -161,36 +75,36 @@ function App() {
 
       <h2>Total People Detected in Frame: {peopleCount}</h2>
 
-      {loading && videoURL && (
-        <div className="processing-video">
-          <h3>Processing Video...</h3>
-          <video ref={processingVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
+      {/* ✅ Live Frames (TOP - Side by Side) */}
+      <div className="video-frame-section">
+        <div className="video-container">
+          <h3>Live Processed Frame</h3>
+          {latestFrame ? (
+            <img src={latestFrame} alt="Processed Frame" className="frame-preview" />
+          ) : (
+            <p>No live frame available yet</p>
+          )}
         </div>
-      )}
+      </div>
 
-      {result && (
-        <div className="result-section">
-          <h2 style={{ marginBottom: "20px" }}>Final Detection Results 📊</h2>
-          <div className="result-content" style={{ fontSize: "20px", fontWeight: "bold", display: "flex", justifyContent: "center", gap: "30px" }}>
-            <p><strong>Total People Detected:</strong> {result.total_people_detected}</p>
-            <p><strong>Average People Per Frame:</strong> {result.average_people_per_frame}</p>
-            <p><strong>Processing Time:</strong> {result.processing_time_seconds} sec</p>
-          </div>
-        </div>
-      )}
-
-      {!loading && videoURL && heatmapURL && (
-        <div className="video-section">
+      {/* ✅ Heatmap & Original Video (BOTTOM - Side by Side) */}
+      <div className="video-processing-section">
+        {/* Original Video (Bottom Left) */}
+        {videoURL && (
           <div className="video-container">
-            <h3>Original Video</h3>
-            <video ref={originalVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
+            <h3>Original Uploaded Video</h3>
+            <video src={videoURL} controls autoPlay muted className="video-player" />
           </div>
+        )}
+
+        {/* AI Heatmap Video (Bottom Right) */}
+        {heatmapURL && (
           <div className="video-container">
             <h3>AI Generated Heatmap</h3>
-            <video ref={heatmapVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
+            <video src={heatmapURL} controls autoPlay muted className="video-player" />
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

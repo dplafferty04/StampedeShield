@@ -80,6 +80,26 @@ p {
   font-weight: bold;
 }
 
+/* Progress Bar */
+.progress-section {
+  margin-top: 15px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background-color: #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #27ae60;
+  transition: width 0.3s ease-in-out;
+}
+
 /* Results Section */
 .result-section {
   margin-top: 10px;
@@ -88,13 +108,6 @@ p {
 
 .result-section h2 {
   color: #27ae60;
-}
-
-.result-content {
-  display: flex;
-  justify-content: space-around;
-  font-size: 14px;
-  color: #333;
 }
 
 /* Frame-wise Count */
@@ -109,25 +122,45 @@ p {
   margin-top: 10px;
 }
 
-/* Video Section */
-.video-section {
+/* ✅ Live WebSocket Frames (Top) */
+.video-frame-section {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   gap: 20px;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
+/* ✅ Heatmap & Original Video (Bottom) */
+.video-processing-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Video & Live Frame Containers */
 .video-container {
   flex: 1;
   text-align: center;
 }
 
-.video-player {
+/* Videos & Live Frames */
+.video-player,
+.frame-preview {
   width: 100%;
   max-width: 450px;
   height: auto;
   border-radius: 5px;
   border: 1px solid #ddd;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Heatmap Video (Appears Below) */
+.video-section {
+  margin-top: 20px;
+  text-align: center;
 }
 
 h3 {
@@ -136,33 +169,18 @@ h3 {
   color: #34495e;
 }
 
-.live-frame {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 10px;
-}
-
-.frame-preview {
-  width: 500px;
-  height: auto;
-  border-radius: 5px;
-  border: 1px solid #ddd;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-}
-
+/* Extra Styling for Results */
 .result-section {
-  margin-top: 30px; /* Adds extra space below "Final Detection Results" */
-  text-align: center;
+  margin-top: 30px;
 }
 
 .result-section h2 {
-  font-size: 26px; /* Increases font size for "Final Detection Results" */
-  margin-bottom: 20px; /* Adds spacing below the title */
+  font-size: 26px;
+  margin-bottom: 20px;
 }
 
 .result-content {
-  font-size: 20px; /* Increases font size for Total, Average, and Processing Time */
+  font-size: 20px;
   display: flex;
   justify-content: center;
   gap: 30px;
