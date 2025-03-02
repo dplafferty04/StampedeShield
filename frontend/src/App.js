@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import "./App.css";
 import WebSocketHandler from "./WebSocketHandler"; // ✅ Import WebSocketHandler
@@ -11,7 +11,10 @@ function App() {
   const [heatmapURL, setHeatmapURL] = useState(null);
   const [progress, setProgress] = useState(0);
   const [peopleCount, setPeopleCount] = useState(0);
-  const [latestFrame, setLatestFrame] = useState(null); // ✅ WebSocket live frame
+  const [latestFrame, setLatestFrame] = useState(null);
+
+  const originalVideoRef = useRef(null);
+  const heatmapVideoRef = useRef(null);
 
   const handleFileUpload = async () => {
     if (!selectedFile) {
@@ -34,6 +37,14 @@ function App() {
       const response = await axios.post("http://127.0.0.1:8000/detect/", formData);
       setResult(response.data);
       setHeatmapURL(response.data.heatmap_video_url || "https://www.w3schools.com/html/mov_bbb.mp4");
+      
+      // ✅ Reset video time to 0 when processing is done
+      if (originalVideoRef.current) {
+        originalVideoRef.current.currentTime = 0;
+      }
+      if (heatmapVideoRef.current) {
+        heatmapVideoRef.current.currentTime = 0;
+      }
     } catch (error) {
       console.error("Error uploading video:", error);
       alert("An error occurred while processing the video.");
@@ -93,7 +104,7 @@ function App() {
         {videoURL && (
           <div className="video-container">
             <h3>Original Uploaded Video</h3>
-            <video src={videoURL} controls autoPlay muted className="video-player" />
+            <video ref={originalVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
           </div>
         )}
 
@@ -101,7 +112,7 @@ function App() {
         {heatmapURL && (
           <div className="video-container">
             <h3>AI Generated Heatmap</h3>
-            <video src={heatmapURL} controls autoPlay muted className="video-player" />
+            <video ref={heatmapVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
           </div>
         )}
       </div>
