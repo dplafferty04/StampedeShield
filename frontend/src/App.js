@@ -138,7 +138,7 @@ function App() {
           {/* Display Danger Zones if available */}
           {dangerZones.length > 0 && (
             <div className="alert-section">
-              <h3>Quadrant Danger Alerts:</h3>
+              {/* <h3>Quadrant Danger Alerts:</h3> */}
               <p style={{ color: "red" }}>
                 {dangerZones.join(", ")} are showing rapid changes!
               </p>

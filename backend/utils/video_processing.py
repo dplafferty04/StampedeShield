@@ -146,7 +146,6 @@ async def process_video(video):
                 break
 
     cap.release()
-    out.release()
     os.remove(video_path)
 
     total_people = sum(people_count_per_frame)
