@@ -1,27 +1,22 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import "./App.css";
-import WebSocketHandler from "./WebSocketHandler"; // Keep existing WebSocketHandler logic
-import LiveCamera from "./live_camera"; // New component for live webcam feed
-import logo from "./Logo.png"; // Import your logo
+import WebSocketHandler from "./WebSocketHandler";
+import LiveCamera from "./live_camera";
+import App2 from "./App2";
 
 function App() {
-  const [mode, setMode] = useState("upload"); // "upload" or "live"
-  
-  // States for upload mode
+  const [mode, setMode] = useState("upload"); 
   const [selectedFile, setSelectedFile] = useState(null);
   const [videoURL, setVideoURL] = useState(null);
   const [heatmapURL, setHeatmapURL] = useState(null);
   const [result, setResult] = useState(null);
-  
-  // Common states
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [peopleCount, setPeopleCount] = useState(0);
   const [quadrantCounts, setQuadrantCounts] = useState({});
-
-  // Live WebSocket frame (used in upload mode for live processing, if any)
-  const [latestFrame, setLatestFrame] = useState(null); // Live WebSocket frame
+  const [latestFrame, setLatestFrame] = useState(null);
+  const [showQuadrants, setShowQuadrants] = useState(false);
 
   const originalVideoRef = useRef(null);
   const heatmapVideoRef = useRef(null);
@@ -35,8 +30,8 @@ function App() {
     setResult(null);
     setPeopleCount(0);
     setProgress(0);
-    
-    // Keep the original video URL for later display
+    setLatestFrame(null);
+
     setVideoURL(URL.createObjectURL(selectedFile));
 
     const formData = new FormData();
@@ -47,13 +42,8 @@ function App() {
       setResult(response.data);
       setHeatmapURL(response.data.heatmap_video_url || "https://www.w3schools.com/html/mov_bbb.mp4");
       
-      // Reset video time to 0 when processing is done
-      if (originalVideoRef.current) {
-        originalVideoRef.current.currentTime = 0;
-      }
-      if (heatmapVideoRef.current) {
-        heatmapVideoRef.current.currentTime = 0;
-      }
+      if (originalVideoRef.current) originalVideoRef.current.currentTime = 0;
+      if (heatmapVideoRef.current) heatmapVideoRef.current.currentTime = 0;
     } catch (error) {
       console.error("Error uploading video:", error);
       alert("An error occurred while processing the video.");
@@ -64,19 +54,16 @@ function App() {
 
   return (
     <div className="container">
-      {/* WebSocket Handler for Real-time Frames and Quadrant Data */}
       <WebSocketHandler
         setLatestFrame={setLatestFrame}
         setPeopleCount={setPeopleCount}
         setProgress={setProgress}
-        setCurrentFrame={() => {}} // Not needed for now
-        setQuadrantCounts={setQuadrantCounts} // New prop to receive quadrant data
+        setCurrentFrame={() => {}}
+        setQuadrantCounts={setQuadrantCounts}
       />
 
       <header>
-        <h1>
-          <img src={logo} alt="Logo" className="logo" /> Stampede Shield
-        </h1>
+        <h1>Stampede Shield 🛡️</h1>
         <p>Select a mode: Upload Video or Live Webcam</p>
       </header>
 
@@ -101,7 +88,6 @@ function App() {
 
           {loading && <p className="loading-text">Analyzing video... Please wait.</p>}
 
-          {/* Only show progress section when processing is ongoing */}
           {loading && (
             <div className="progress-section">
               <h3>Processing Progress: {progress}%</h3>
@@ -111,77 +97,70 @@ function App() {
             </div>
           )}
 
-          {/* Added margin-top to ensure consistent spacing when progress bar is hidden */}
-          <div className="people-count-section" style={{ marginTop: "20px" }}>
-            <h2>Total People Detected in Frame: {peopleCount}</h2>
-          </div>
-
-          {/* Quadrant Section */}
-          <div className="quadrant-section">
-            <h3>Live Quadrant Counts (12 Regions):</h3>
-            {Object.keys(quadrantCounts).length > 0 ? (
-              <div className="quadrant-grid">
-                {Object.entries(quadrantCounts).map(([key, value]) => (
-                  <div key={key} className="quadrant-cell">
-                    <p>{key}: {value}</p>
-                  </div>
-                ))}
+          {loading && (
+            <div className="video-frame-section">
+              <div className="video-container">
+                <h3>Live Processed Frame</h3>
+                {latestFrame ? (
+                  <img src={latestFrame} alt="Processed Frame" className="frame-preview" />
+                ) : (
+                  <p>No live frame available yet</p>
+                )}
               </div>
-            ) : (
-              <p>No quadrant data available yet</p>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Live Processed Frame */}
-          <div className="video-frame-section">
-            <div className="video-container">
-              <h3>Live Processed Frame</h3>
-              {latestFrame ? (
-                <img src={latestFrame} alt="Processed Frame" className="frame-preview" />
+          <App2 
+            toggleQuadrants={() => setShowQuadrants(!showQuadrants)} 
+            showQuadrants={showQuadrants} 
+            loading={loading} 
+          />
+
+          {showQuadrants && (
+            <div className="quadrant-section">
+              <h3>Live Quadrant Counts (12 Regions):</h3>
+              {Object.keys(quadrantCounts).length > 0 ? (
+                <div className="quadrant-grid">
+                  {Object.entries(quadrantCounts).map(([key, value]) => (
+                    <div key={key} className="quadrant-cell">
+                      <p>{key}: {value}</p>
+                    </div>
+                  ))}
+                </div>
               ) : (
-                <p>No live frame available yet</p>
+                <p>No quadrant data available yet</p>
               )}
             </div>
-          </div>
+          )}
 
-          {/* Bottom Section: Original Video & AI Heatmap */}
           <div className="video-processing-section">
             {videoURL && (
               <div className="video-container">
                 <h3>Original Uploaded Video</h3>
-                <video ref={originalVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
+                <video
+                  ref={originalVideoRef}
+                  src={videoURL}
+                  controls
+                  autoPlay
+                  muted
+                  className="video-player"
+                />
               </div>
             )}
             {heatmapURL && (
               <div className="video-container">
                 <h3>AI Generated Heatmap</h3>
-                <video ref={heatmapVideoRef} src={heatmapURL} controls autoPlay muted className="video-player" />
+                <video
+                  ref={heatmapVideoRef}
+                  src={heatmapURL}
+                  controls
+                  autoPlay
+                  muted
+                  className="video-player"
+                />
               </div>
             )}
           </div>
-
-          {result && (
-            <div className="result-section">
-              <h2>Final Detection Results 📊</h2>
-              <div className="result-content">
-                <p><strong>Total People Detected:</strong> {result.total_people_detected}</p>
-                <p><strong>Average People Per Frame:</strong> {result.average_people_per_frame}</p>
-                <p><strong>Processing Time:</strong> {result.processing_time_seconds} sec</p>
-              </div>
-              {result.avg_quadrant_counts && (
-                <div className="quadrant-result">
-                  <h3>Average Quadrant Counts:</h3>
-                  {Object.entries(result.avg_quadrant_counts).map(([key, value]) => (
-                    <p key={key}>{key}: {value.toFixed(2)}</p>
-                  ))}
-                  <h3>Quadrant Alerts:</h3>
-                  {result.quadrant_alerts && Object.entries(result.quadrant_alerts).map(([key, value]) => (
-                    <p key={key}>{key}: {value ? "Overcrowded" : "Safe"}</p>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
         </>
       )}
 
