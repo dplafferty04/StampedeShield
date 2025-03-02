@@ -73,16 +73,17 @@ function App() {
         setQuadrantCounts={setQuadrantCounts} // New prop to receive quadrant data
       />
 
-      <header>
-        <h1>
-          <img src={logo} alt="Logo" className="logo" /> Stampede Shield
+      <header className="header">
+        <h1 className="title">
+          <img src={logo} alt="Logo" className="logo" /> 
         </h1>
-        <p>Select a mode: Upload Video or Live Webcam</p>
+        <h1 className="title">Stampede Shield</h1>
+        <p className="subtitle">Select a mode: Upload Video or Live Webcam</p>
       </header>
 
       <div className="mode-selection">
-        <button onClick={() => setMode("upload")}>Upload Video</button>
-        <button onClick={() => setMode("live")}>Live Webcam</button>
+        <button onClick={() => setMode("upload")} className="mode-btn">Upload Video</button>
+        <button onClick={() => setMode("live")} className="mode-btn">Live Webcam</button>
       </div>
 
       {mode === "upload" && (
