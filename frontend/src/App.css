@@ -202,3 +202,9 @@ p {
   width: 100%;
   max-width: 100px;
 }
+.logo {
+  width: 90px;
+  height: auto;
+  vertical-align: middle;
+  margin-right: 10px;
+}

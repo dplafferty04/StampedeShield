@@ -3,6 +3,7 @@ import axios from "axios";
 import "./App.css";
 import WebSocketHandler from "./WebSocketHandler"; // Keep existing WebSocketHandler logic
 import LiveCamera from "./live_camera"; // New component for live webcam feed
+import logo from "./Logo.png"; // Import your logo
 
 function App() {
   const [mode, setMode] = useState("upload"); // "upload" or "live"
@@ -63,21 +64,22 @@ function App() {
 
   return (
     <div className="container">
-      {/* Always include the WebSocketHandler (unchanged) */}
+      {/* WebSocket Handler for Real-time Frames and Quadrant Data */}
       <WebSocketHandler
         setLatestFrame={setLatestFrame}
         setPeopleCount={setPeopleCount}
         setProgress={setProgress}
-        setCurrentFrame={() => {}}
-        setQuadrantCounts={setQuadrantCounts}
+        setCurrentFrame={() => {}} // Not needed for now
+        setQuadrantCounts={setQuadrantCounts} // New prop to receive quadrant data
       />
 
       <header>
-        <h1>Stampede Shield 🛡️</h1>
+        <h1>
+          <img src={logo} alt="Logo" className="logo" /> Stampede Shield
+        </h1>
         <p>Select a mode: Upload Video or Live Webcam</p>
       </header>
 
-      {/* Mode Selection Buttons */}
       <div className="mode-selection">
         <button onClick={() => setMode("upload")}>Upload Video</button>
         <button onClick={() => setMode("live")}>Live Webcam</button>
@@ -109,6 +111,7 @@ function App() {
             </div>
           )}
 
+          {/* Added margin-top to ensure consistent spacing when progress bar is hidden */}
           <div className="people-count-section" style={{ marginTop: "20px" }}>
             <h2>Total People Detected in Frame: {peopleCount}</h2>
           </div>
@@ -146,27 +149,13 @@ function App() {
             {videoURL && (
               <div className="video-container">
                 <h3>Original Uploaded Video</h3>
-                <video
-                  ref={originalVideoRef}
-                  src={videoURL}
-                  controls
-                  autoPlay
-                  muted
-                  className="video-player"
-                />
+                <video ref={originalVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
               </div>
             )}
             {heatmapURL && (
               <div className="video-container">
                 <h3>AI Generated Heatmap</h3>
-                <video
-                  ref={heatmapVideoRef}
-                  src={heatmapURL}
-                  controls
-                  autoPlay
-                  muted
-                  className="video-player"
-                />
+                <video ref={heatmapVideoRef} src={heatmapURL} controls autoPlay muted className="video-player" />
               </div>
             )}
           </div>
@@ -175,31 +164,20 @@ function App() {
             <div className="result-section">
               <h2>Final Detection Results 📊</h2>
               <div className="result-content">
-                <p>
-                  <strong>Total People Detected:</strong> {result.total_people_detected}
-                </p>
-                <p>
-                  <strong>Average People Per Frame:</strong> {result.average_people_per_frame}
-                </p>
-                <p>
-                  <strong>Processing Time:</strong> {result.processing_time_seconds} sec
-                </p>
+                <p><strong>Total People Detected:</strong> {result.total_people_detected}</p>
+                <p><strong>Average People Per Frame:</strong> {result.average_people_per_frame}</p>
+                <p><strong>Processing Time:</strong> {result.processing_time_seconds} sec</p>
               </div>
               {result.avg_quadrant_counts && (
                 <div className="quadrant-result">
                   <h3>Average Quadrant Counts:</h3>
                   {Object.entries(result.avg_quadrant_counts).map(([key, value]) => (
-                    <p key={key}>
-                      {key}: {value.toFixed(2)}
-                    </p>
+                    <p key={key}>{key}: {value.toFixed(2)}</p>
                   ))}
                   <h3>Quadrant Alerts:</h3>
-                  {result.quadrant_alerts &&
-                    Object.entries(result.quadrant_alerts).map(([key, value]) => (
-                      <p key={key}>
-                        {key}: {value ? "Overcrowded" : "Safe"}
-                      </p>
-                    ))}
+                  {result.quadrant_alerts && Object.entries(result.quadrant_alerts).map(([key, value]) => (
+                    <p key={key}>{key}: {value ? "Overcrowded" : "Safe"}</p>
+                  ))}
                 </div>
               )}
             </div>
