@@ -8,35 +8,20 @@ function App() {
   const [result, setResult] = useState(null);
   const [videoURL, setVideoURL] = useState(null);
   const [heatmapURL, setHeatmapURL] = useState(null);
-  const [latestFrame, setLatestFrame] = useState(null);
   const [progress, setProgress] = useState(0);
   const [peopleCount, setPeopleCount] = useState(0);
-  const [currentFrame, setCurrentFrame] = useState(0);
 
   const originalVideoRef = useRef(null);
   const heatmapVideoRef = useRef(null);
+  const syncingRef = useRef(false); // Prevents event loops
 
   useEffect(() => {
     const ws = new WebSocket("ws://127.0.0.1:8000/ws");
 
     ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        console.log("Received WebSocket Data:", data); // Debugging log
-
-        setLatestFrame(data.frame ? `data:image/jpeg;base64,${data.frame}` : null);
-        setPeopleCount(data.people_in_frame || 0);
-
-        // Ensure progress exists before calling `.toFixed()`
-        const progressValue = data.progress !== undefined ? data.progress.toFixed(2) : 0;
-        setProgress(progressValue);
-
-        if (data.frame_number !== undefined) {
-          setCurrentFrame(data.frame_number);
-        }
-      } catch (error) {
-        console.error("Error parsing WebSocket data:", error);
-      }
+      const data = JSON.parse(event.data);
+      setPeopleCount(data.people_in_frame || 0); // Ensure people count defaults to 0
+      setProgress(data.progress !== undefined ? data.progress.toFixed(2) : 0);
     };
 
     ws.onerror = (error) => console.error("WebSocket error:", error);
@@ -53,10 +38,8 @@ function App() {
 
     setLoading(true);
     setResult(null);
-    setLatestFrame(null);
     setPeopleCount(0);
     setProgress(0);
-    setCurrentFrame(0);
     setVideoURL(URL.createObjectURL(selectedFile));
 
     const formData = new FormData();
@@ -74,14 +57,19 @@ function App() {
     setLoading(false);
   };
 
-  // Synchronize videos
-  const syncVideos = (sourceVideo, targetVideo) => {
-    if (!sourceVideo || !targetVideo) return;
+  // Function to synchronize videos
+  const syncVideos = (source, target) => {
+    if (!source || !target || syncingRef.current) return;
+    syncingRef.current = true;
 
-    targetVideo.currentTime = sourceVideo.currentTime;
-    if (sourceVideo.paused !== targetVideo.paused) {
-      sourceVideo.paused ? targetVideo.pause() : targetVideo.play();
+    if (Math.abs(source.currentTime - target.currentTime) > 0.1) {
+      target.currentTime = source.currentTime;
     }
+    if (source.paused !== target.paused) {
+      source.paused ? target.pause() : target.play();
+    }
+
+    requestAnimationFrame(() => (syncingRef.current = false));
   };
 
   useEffect(() => {
@@ -89,32 +77,35 @@ function App() {
     const heatmapVideo = heatmapVideoRef.current;
 
     if (originalVideo && heatmapVideo) {
-      const handleSync = () => syncVideos(originalVideo, heatmapVideo);
-      const handleTimeUpdate = () => {
-        if (Math.abs(originalVideo.currentTime - heatmapVideo.currentTime) > 0.1) {
-          heatmapVideo.currentTime = originalVideo.currentTime;
-        }
+      const handlePlayPause = (event) => {
+        const otherVideo = event.target === originalVideo ? heatmapVideo : originalVideo;
+        syncVideos(event.target, otherVideo);
       };
 
-      originalVideo.addEventListener("play", handleSync);
-      originalVideo.addEventListener("pause", handleSync);
-      originalVideo.addEventListener("seeked", handleSync);
+      const handleTimeUpdate = (event) => {
+        const otherVideo = event.target === originalVideo ? heatmapVideo : originalVideo;
+        syncVideos(event.target, otherVideo);
+      };
+
+      originalVideo.addEventListener("play", handlePlayPause);
+      originalVideo.addEventListener("pause", handlePlayPause);
+      originalVideo.addEventListener("seeked", handleTimeUpdate);
       originalVideo.addEventListener("timeupdate", handleTimeUpdate);
 
-      heatmapVideo.addEventListener("play", handleSync);
-      heatmapVideo.addEventListener("pause", handleSync);
-      heatmapVideo.addEventListener("seeked", handleSync);
+      heatmapVideo.addEventListener("play", handlePlayPause);
+      heatmapVideo.addEventListener("pause", handlePlayPause);
+      heatmapVideo.addEventListener("seeked", handleTimeUpdate);
       heatmapVideo.addEventListener("timeupdate", handleTimeUpdate);
 
       return () => {
-        originalVideo.removeEventListener("play", handleSync);
-        originalVideo.removeEventListener("pause", handleSync);
-        originalVideo.removeEventListener("seeked", handleSync);
+        originalVideo.removeEventListener("play", handlePlayPause);
+        originalVideo.removeEventListener("pause", handlePlayPause);
+        originalVideo.removeEventListener("seeked", handleTimeUpdate);
         originalVideo.removeEventListener("timeupdate", handleTimeUpdate);
 
-        heatmapVideo.removeEventListener("play", handleSync);
-        heatmapVideo.removeEventListener("pause", handleSync);
-        heatmapVideo.removeEventListener("seeked", handleSync);
+        heatmapVideo.removeEventListener("play", handlePlayPause);
+        heatmapVideo.removeEventListener("pause", handlePlayPause);
+        heatmapVideo.removeEventListener("seeked", handleTimeUpdate);
         heatmapVideo.removeEventListener("timeupdate", handleTimeUpdate);
       };
     }
@@ -149,15 +140,6 @@ function App() {
       </div>
 
       <h2>Total People Detected in Frame: {peopleCount}</h2>
-      <h3>Current Frame: {currentFrame}</h3>
-
-      <div className="live-frame">
-        {latestFrame ? (
-          <img src={latestFrame} alt="Processed Frame" className="frame-preview" />
-        ) : (
-          <p>No frame available yet</p>
-        )}
-      </div>
 
       {result && (
         <div className="result-section">

@@ -150,3 +150,21 @@ h3 {
   border: 1px solid #ddd;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+.result-section {
+  margin-top: 30px; /* Adds extra space below "Final Detection Results" */
+  text-align: center;
+}
+
+.result-section h2 {
+  font-size: 26px; /* Increases font size for "Final Detection Results" */
+  margin-bottom: 20px; /* Adds spacing below the title */
+}
+
+.result-content {
+  font-size: 20px; /* Increases font size for Total, Average, and Processing Time */
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  font-weight: bold;
+}
