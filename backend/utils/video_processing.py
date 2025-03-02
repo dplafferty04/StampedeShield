@@ -2,10 +2,12 @@ import os
 import time
 import cv2
 import numpy as np
+import base64
 from fastapi import HTTPException
 from models import model
 from rich.console import Console
 from rich.progress import Progress
+from websocket_manager import websocket_manager
 
 console = Console()
 
@@ -52,13 +54,24 @@ async def process_video(video):
             if frame_count % frame_skip != 0:
                 frame_count += 1
                 continue
-            
+
             frame_count += 1
             progress.update(task, advance=frame_skip)
 
             results = model(frame)
             people_in_frame = sum(1 for box in results[0].boxes if int(box.cls[0]) == 0)
             people_count_per_frame.append(people_in_frame)
+
+            # Send frame and people count via WebSocket
+            _, buffer = cv2.imencode(".jpg", frame)
+            frame_base64 = base64.b64encode(buffer).decode("utf-8")
+            
+            await websocket_manager.send_data({
+                "frame": frame_base64,
+                "people_in_frame": people_in_frame,
+                "progress": (frame_count / total_frames) * 100
+            })
+
 
             heatmap = np.zeros((height, width), dtype=np.float32)
             for box in results[0].boxes:

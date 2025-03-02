@@ -20,12 +20,22 @@ function App() {
     const ws = new WebSocket("ws://127.0.0.1:8000/ws");
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setLatestFrame(`data:image/jpeg;base64,${data.frame}`);
-      setPeopleCount(data.people_in_frame);
-      setProgress(data.progress.toFixed(2));
-      if (data.frame_number !== undefined) {
-        setCurrentFrame(data.frame_number);
+      try {
+        const data = JSON.parse(event.data);
+        console.log("Received WebSocket Data:", data); // Debugging log
+
+        setLatestFrame(data.frame ? `data:image/jpeg;base64,${data.frame}` : null);
+        setPeopleCount(data.people_in_frame || 0);
+
+        // Ensure progress exists before calling `.toFixed()`
+        const progressValue = data.progress !== undefined ? data.progress.toFixed(2) : 0;
+        setProgress(progressValue);
+
+        if (data.frame_number !== undefined) {
+          setCurrentFrame(data.frame_number);
+        }
+      } catch (error) {
+        console.error("Error parsing WebSocket data:", error);
       }
     };
 
