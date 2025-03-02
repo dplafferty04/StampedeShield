@@ -3,10 +3,11 @@ import axios from "axios";
 import "./App.css";
 import WebSocketHandler from "./WebSocketHandler"; // Keep existing WebSocketHandler logic
 import LiveCamera from "./live_camera"; // New component for live webcam feed
+import App2 from "./App2"; // New component for frame scrubber
 import logo from "./Logo.png"; // Import your logo
 
 function App() {
-  const [mode, setMode] = useState("upload"); // "upload" or "live"
+  const [mode, setMode] = useState("upload"); // "upload", "live", or "scrubber"
   
   // States for upload mode
   const [selectedFile, setSelectedFile] = useState(null);
@@ -19,10 +20,13 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [peopleCount, setPeopleCount] = useState(0);
   const [quadrantCounts, setQuadrantCounts] = useState({});
-  const [dangerZones, setDangerZones] = useState([]); // New state for danger alerts
+  const [dangerZones, setDangerZones] = useState([]); // For danger alerts
 
   // Live WebSocket frame (used in upload mode for live processing, if any)
   const [latestFrame, setLatestFrame] = useState(null);
+
+  // NEW: Store frames received via WebSocket for scrubbing
+  const [frames, setFrames] = useState([]);
 
   const originalVideoRef = useRef(null);
   const heatmapVideoRef = useRef(null);
@@ -59,13 +63,12 @@ function App() {
       console.error("Error uploading video:", error);
       alert("An error occurred while processing the video.");
     }
-
     setLoading(false);
   };
 
   return (
     <div className="container">
-      {/* WebSocket Handler for Real-time Frames and Quadrant Data */}
+      {/* WebSocket Handler for real-time frames and quadrant data; also stores each frame in frames state */}
       <WebSocketHandler
         setLatestFrame={setLatestFrame}
         setPeopleCount={setPeopleCount}
@@ -73,19 +76,20 @@ function App() {
         setCurrentFrame={() => {}}
         setQuadrantCounts={setQuadrantCounts}
         setDangerZones={setDangerZones}
+        setFrames={setFrames} // New prop to update frames array
       />
 
       <header className="header">
         <h1 className="title">
-          <img src={logo} alt="Logo" className="logo" /> 
-          Stampede Shield
+          <img src={logo} alt="Logo" className="logo" /> Stampede Shield
         </h1>
-        <p className="subtitle">Select a mode: Upload Video or Live Webcam</p>
+        <p className="subtitle">Select a mode: Upload Video, Live Webcam, or Frame Scrubber</p>
       </header>
 
       <div className="mode-selection">
         <button onClick={() => setMode("upload")} className="mode-btn">Upload Video</button>
         <button onClick={() => setMode("live")} className="mode-btn">Live Webcam</button>
+        <button onClick={() => setMode("scrubber")} className="mode-btn">Frame Scrubber</button>
       </div>
 
       {mode === "upload" && (
@@ -104,7 +108,6 @@ function App() {
 
           {loading && <p className="loading-text">Analyzing video... Please wait.</p>}
 
-          {/* Only show progress section when processing is ongoing */}
           {loading && (
             <div className="progress-section">
               <h3>Processing Progress: {progress}%</h3>
@@ -120,30 +123,19 @@ function App() {
 
           {/* Quadrant Section */}
           <div className="quadrant-section">
-  <h3>Live Quadrant Counts (12 Regions):</h3>
-  {Object.keys(quadrantCounts).length > 0 ? (
-    <div className="quadrant-grid">
-      {Object.entries(quadrantCounts).map(([key, value]) => (
-        <div key={key} className={`quadrant-cell ${dangerZones.includes(key) ? 'danger' : ''}`}>
-          <p>{key}: {value}</p>
-        </div>
-      ))}
-    </div>
-  ) : (
-    <p>No quadrant data available yet</p>
-  )}
-</div>
-
-
-          {/* Display Danger Zones if available */}
-          {dangerZones.length > 0 && (
-            <div className="alert-section">
-              {/* <h3>Quadrant Danger Alerts:</h3> */}
-              <p style={{ color: "red" }}>
-                {dangerZones.join(", ")} are showing rapid changes!
-              </p>
-            </div>
-          )}
+            <h3>Live Quadrant Counts (12 Regions):</h3>
+            {Object.keys(quadrantCounts).length > 0 ? (
+              <div className="quadrant-grid">
+                {Object.entries(quadrantCounts).map(([key, value]) => (
+                  <div key={key} className={`quadrant-cell ${dangerZones.includes(key) ? 'danger' : ''}`}>
+                    <p>{key}: {value}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>No quadrant data available yet</p>
+            )}
+          </div>
 
           {/* Live Processed Frame */}
           <div className="video-frame-section">
@@ -201,6 +193,12 @@ function App() {
       {mode === "live" && (
         <div className="live-feed-section">
           <LiveCamera />
+        </div>
+      )}
+
+      {mode === "scrubber" && (
+        <div className="scrubber-section">
+          <App2 frames={frames} />
         </div>
       )}
     </div>
