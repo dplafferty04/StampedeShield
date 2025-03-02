@@ -11,15 +11,28 @@ function App() {
   const [latestFrame, setLatestFrame] = useState(null);
   const [progress, setProgress] = useState(0);
   const [peopleCount, setPeopleCount] = useState(0);
+  const [currentFrame, setCurrentFrame] = useState(0);
 
   useEffect(() => {
     const ws = new WebSocket("ws://127.0.0.1:8000/ws");
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      setLatestFrame(`data:image/jpeg;base64,${data.frame}`); // Update only the latest frame
+      // Ensure the frame data is correctly used in a data URL
+      setLatestFrame(`data:image/jpeg;base64,${data.frame}`);
       setPeopleCount(data.people_in_frame);
       setProgress(data.progress.toFixed(2));
+      if (data.frame_number !== undefined) {
+        setCurrentFrame(data.frame_number);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    ws.onclose = () => {
+      console.warn("WebSocket closed.");
     };
 
     return () => ws.close();
@@ -36,6 +49,7 @@ function App() {
     setLatestFrame(null);
     setPeopleCount(0);
     setProgress(0);
+    setCurrentFrame(0);
     setVideoURL(URL.createObjectURL(selectedFile)); // Show original video immediately
 
     const formData = new FormData();
@@ -82,6 +96,7 @@ function App() {
       </div>
 
       <h2>Total People Detected in Frame: {peopleCount}</h2>
+      <h3>Current Frame: {currentFrame}</h3>
 
       <div className="live-frame">
         {latestFrame ? (
