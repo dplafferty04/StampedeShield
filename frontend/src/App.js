@@ -13,6 +13,7 @@ function App() {
 
   const originalVideoRef = useRef(null);
   const heatmapVideoRef = useRef(null);
+  const processingVideoRef = useRef(null);
   const syncingRef = useRef(false); // Prevents event loops
 
   useEffect(() => {
@@ -40,7 +41,16 @@ function App() {
     setResult(null);
     setPeopleCount(0);
     setProgress(0);
+
+    // Ensure the video remains visible while processing
     setVideoURL(URL.createObjectURL(selectedFile));
+
+    // Autoplay the processing video
+    setTimeout(() => {
+      if (processingVideoRef.current) {
+        processingVideoRef.current.play().catch((err) => console.warn("Autoplay blocked:", err));
+      }
+    }, 500);
 
     const formData = new FormData();
     formData.append("video", selectedFile);
@@ -111,6 +121,16 @@ function App() {
     }
   }, [videoURL, heatmapURL]);
 
+  useEffect(() => {
+    if (!loading && videoURL && heatmapURL) {
+      // Autoplay both videos when they appear after processing
+      setTimeout(() => {
+        if (originalVideoRef.current) originalVideoRef.current.play().catch(() => {});
+        if (heatmapVideoRef.current) heatmapVideoRef.current.play().catch(() => {});
+      }, 500);
+    }
+  }, [loading, videoURL, heatmapURL]);
+
   return (
     <div className="container">
       <header>
@@ -141,10 +161,17 @@ function App() {
 
       <h2>Total People Detected in Frame: {peopleCount}</h2>
 
+      {loading && videoURL && (
+        <div className="processing-video">
+          <h3>Processing Video...</h3>
+          <video ref={processingVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
+        </div>
+      )}
+
       {result && (
         <div className="result-section">
-          <h2>Final Detection Results 📊</h2>
-          <div className="result-content">
+          <h2 style={{ marginBottom: "20px" }}>Final Detection Results 📊</h2>
+          <div className="result-content" style={{ fontSize: "20px", fontWeight: "bold", display: "flex", justifyContent: "center", gap: "30px" }}>
             <p><strong>Total People Detected:</strong> {result.total_people_detected}</p>
             <p><strong>Average People Per Frame:</strong> {result.average_people_per_frame}</p>
             <p><strong>Processing Time:</strong> {result.processing_time_seconds} sec</p>
@@ -152,15 +179,15 @@ function App() {
         </div>
       )}
 
-      {videoURL && heatmapURL && (
+      {!loading && videoURL && heatmapURL && (
         <div className="video-section">
           <div className="video-container">
             <h3>Original Video</h3>
-            <video ref={originalVideoRef} src={videoURL} controls className="video-player" />
+            <video ref={originalVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
           </div>
           <div className="video-container">
             <h3>AI Generated Heatmap</h3>
-            <video ref={heatmapVideoRef} src={videoURL} controls className="video-player" />
+            <video ref={heatmapVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
           </div>
         </div>
       )}
