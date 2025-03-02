@@ -16,10 +16,10 @@ body {
   flex-direction: column;
 }
 
-/* Container - Centered and spacious */
+/* Container - Expanded width */
 .container {
   background: white;
-  max-width: 1200px;
+  max-width: 1400px; /* Increased max-width for a wider container */
   width: 90%;
   padding: 30px;
   border-radius: 12px;
@@ -32,7 +32,10 @@ body {
 
 /* Header Section */
 .header {
+  display: flex; /* Use flexbox for the header */
+  align-items: center; /* Align items vertically */
   margin-bottom: 20px;
+  justify-content: center; /* Center header content */
 }
 
 .title {
@@ -41,6 +44,7 @@ body {
   color: #1e3a8a; /* Deep Blue */
   font-family: 'Montserrat', sans-serif;
   text-transform: uppercase;
+  margin-right: 20px; /* Space between title and logo */
 }
 
 .subtitle {
@@ -52,9 +56,9 @@ body {
 
 /* Logo Styling */
 .logo {
-  width: 300px;
-  height: 300px;
-  margin-bottom: 20px;
+  width: 250px; /* Adjusted to fit better beside the title */
+  height: auto; /* Maintain aspect ratio */
+  margin-left: 20px; /* Space between logo and header */
   border-radius: 0%;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
@@ -203,5 +207,19 @@ button:hover {
 
   .upload-btn {
     font-size: 1em;
+  }
+
+  .header {
+    flex-direction: column; /* Stack logo and title on smaller screens */
+    align-items: center; /* Center items */
+  }
+
+  .title {
+    margin-right: 0; /* Remove right margin when stacked */
+  }
+
+  .logo {
+    margin-left: 0; /* Remove left margin when stacked */
+    margin-bottom: 20px; /* Add bottom margin for spacing */
   }
 }
