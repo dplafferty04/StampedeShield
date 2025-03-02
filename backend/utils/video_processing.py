@@ -8,6 +8,7 @@ from models import model
 from rich.console import Console
 from rich.progress import Progress
 from websocket_manager import websocket_manager
+from utils.alert import check_overcrowding  # Import the updated alert function
 
 console = Console()
 
@@ -31,7 +32,7 @@ async def process_video(video):
     aggregated_quadrants = {f"q{i}": 0 for i in range(1, 13)}
     # For danger flags aggregation over frames
     danger_flags = {f"q{i}": 0 for i in range(1, 13)}
-    # We'll also keep track of the previous frame’s quadrant counts
+    # Keep track of previous frame’s quadrant counts
     prev_quadrant_counts = {f"q{i}": 0 for i in range(1, 13)}
     
     start_time = time.time()
@@ -47,13 +48,14 @@ async def process_video(video):
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
     
-    # Define grid dimensions for 12 equal regions: 3 rows and 4 columns
+    # Grid dimensions for 12 equal regions: 3 rows x 4 columns
     num_rows = 3
     num_cols = 4
 
     # Define thresholds (adjust these based on your scenario)
     high_density_threshold = 5      # if more than 5 people in a region in a frame, flag it
     sudden_change_threshold = 3       # if change from previous frame exceeds 3, flag it
+    global_max_capacity = 50          # Example global capacity
 
     with Progress() as progress:
         task = progress.add_task("[cyan]Processing video frames...", total=total_frames)
@@ -83,7 +85,6 @@ async def process_video(video):
                     # Determine the column and row indices (0-indexed)
                     col_index = int(center_x / (width / num_cols))
                     row_index = int(center_y / (height / num_rows))
-                    # Clamp indices to valid ranges
                     col_index = min(col_index, num_cols - 1)
                     row_index = min(row_index, num_rows - 1)
 
@@ -96,17 +97,28 @@ async def process_video(video):
             for key in aggregated_quadrants:
                 aggregated_quadrants[key] += quadrant_counts[key]
             
-            # Danger detection logic: compare current quadrant_counts with previous frame counts
-            danger_zones = []
-            for key in quadrant_counts:
-                # Check if current count is high or has a sudden change
-                if quadrant_counts[key] > high_density_threshold or abs(quadrant_counts[key] - prev_quadrant_counts[key]) > sudden_change_threshold:
-                    danger_zones.append(key)
-                    danger_flags[key] += 1
-            # Update previous counts
+            # Compute quadrant deltas for current frame (change from previous frame)
+            quadrant_deltas = { key: quadrant_counts[key] - prev_quadrant_counts.get(key, 0) for key in quadrant_counts }
+            
+            # Call the updated alert function to get global and quadrant alerts
+            alert_info = check_overcrowding(
+                people_in_frame,
+                global_max_capacity,
+                quadrant_counts=quadrant_counts,
+                quadrant_threshold=high_density_threshold,
+                quadrant_deltas=quadrant_deltas,
+                scatter_threshold=sudden_change_threshold
+            )
+            # Extract danger zones from alert info
+            danger_zones = [key for key, info in alert_info["quadrant_alerts"].items() if info["alert"]]
+            # Update aggregated danger flags
+            for key in danger_zones:
+                danger_flags[key] += 1
+            
+            # Update previous quadrant counts for next iteration
             prev_quadrant_counts = quadrant_counts.copy()
             
-            # Send frame info via WebSocket (include quadrant and danger data)
+            # Send frame info via WebSocket (include quadrant and alert data)
             _, buffer = cv2.imencode(".jpg", frame)
             frame_base64 = base64.b64encode(buffer).decode("utf-8")
             await websocket_manager.send_data({
@@ -134,13 +146,12 @@ async def process_video(video):
                 break
 
     cap.release()
-    out.release()
     os.remove(video_path)
 
     total_people = sum(people_count_per_frame)
     avg_people_per_frame = total_people / len(people_count_per_frame) if people_count_per_frame else 0
     avg_quadrants = { key: aggregated_quadrants[key] / len(people_count_per_frame) for key in aggregated_quadrants }
-    # For danger alerts, flag a quadrant if danger occurred in more than 30% of frames
+    # For final danger alerts, flag a quadrant if danger occurred in >30% of frames
     danger_alerts = { key: (danger_flags[key] / len(people_count_per_frame)) > 0.3 for key in danger_flags }
 
     process_time = time.time() - start_time

@@ -15,8 +15,13 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [peopleCount, setPeopleCount] = useState(0);
   const [quadrantCounts, setQuadrantCounts] = useState({});
+  const [dangerZones, setDangerZones] = useState([]); // For danger alerts
+
+  // Live WebSocket frame (used in upload mode for live processing, if any)
   const [latestFrame, setLatestFrame] = useState(null);
-  const [showQuadrants, setShowQuadrants] = useState(false);
+
+  // NEW: Store frames received via WebSocket for scrubbing
+  const [frames, setFrames] = useState([]);
 
   const originalVideoRef = useRef(null);
   const heatmapVideoRef = useRef(null);
@@ -48,28 +53,33 @@ function App() {
       console.error("Error uploading video:", error);
       alert("An error occurred while processing the video.");
     }
-
     setLoading(false);
   };
 
   return (
     <div className="container">
+      {/* WebSocket Handler for real-time frames and quadrant data; also stores each frame in frames state */}
       <WebSocketHandler
         setLatestFrame={setLatestFrame}
         setPeopleCount={setPeopleCount}
         setProgress={setProgress}
         setCurrentFrame={() => {}}
         setQuadrantCounts={setQuadrantCounts}
+        setDangerZones={setDangerZones}
+        setFrames={setFrames} // New prop to update frames array
       />
 
-      <header>
-        <h1>Stampede Shield 🛡️</h1>
-        <p>Select a mode: Upload Video or Live Webcam</p>
+      <header className="header">
+        <h1 className="title">
+          <img src={logo} alt="Logo" className="logo" /> Stampede Shield
+        </h1>
+        <p className="subtitle">Select a mode: Upload Video, Live Webcam, or Frame Scrubber</p>
       </header>
 
       <div className="mode-selection">
-        <button onClick={() => setMode("upload")}>Upload Video</button>
-        <button onClick={() => setMode("live")}>Live Webcam</button>
+        <button onClick={() => setMode("upload")} className="mode-btn">Upload Video</button>
+        <button onClick={() => setMode("live")} className="mode-btn">Live Webcam</button>
+        <button onClick={() => setMode("scrubber")} className="mode-btn">Frame Scrubber</button>
       </div>
 
       {mode === "upload" && (
@@ -97,15 +107,20 @@ function App() {
             </div>
           )}
 
-          {loading && (
-            <div className="video-frame-section">
-              <div className="video-container">
-                <h3>Live Processed Frame</h3>
-                {latestFrame ? (
-                  <img src={latestFrame} alt="Processed Frame" className="frame-preview" />
-                ) : (
-                  <p>No live frame available yet</p>
-                )}
+          <div className="people-count-section" style={{ marginTop: "20px" }}>
+            <h2>Total People Detected in Frame: {peopleCount}</h2>
+          </div>
+
+          {/* Quadrant Section */}
+          <div className="quadrant-section">
+            <h3>Live Quadrant Counts (12 Regions):</h3>
+            {Object.keys(quadrantCounts).length > 0 ? (
+              <div className="quadrant-grid">
+                {Object.entries(quadrantCounts).map(([key, value]) => (
+                  <div key={key} className={`quadrant-cell ${dangerZones.includes(key) ? 'danger' : ''}`}>
+                    <p>{key}: {value}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -167,6 +182,12 @@ function App() {
       {mode === "live" && (
         <div className="live-feed-section">
           <LiveCamera />
+        </div>
+      )}
+
+      {mode === "scrubber" && (
+        <div className="scrubber-section">
+          <App2 frames={frames} />
         </div>
       )}
     </div>
