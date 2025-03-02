@@ -165,7 +165,7 @@ body {
 
 .video-player, .frame-preview {
   width: 900px;
-  margin: auto;
+  margin:  auto;
   height: auto;
   border-radius: 12px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);

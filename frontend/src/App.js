@@ -1,10 +1,10 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import "./App.css";
-import WebSocketHandler from "./WebSocketHandler"; // Keep existing WebSocketHandler logic
-import LiveCamera from "./live_camera"; // New component for live webcam feed
-import App2 from "./App2"; // New component for frame scrubber
-import logo from "./Logo.png"; // Import your logo
+import WebSocketHandler from "./WebSocketHandler"; // existing WebSocketHandler logic
+import LiveCamera from "./live_camera"; // live webcam component
+import App2 from "./App2"; // frame scrubber component
+import logo from "./Logo.png"; // logo
 
 function App() {
   const [mode, setMode] = useState("upload"); // "upload", "live", or "scrubber"
@@ -12,6 +12,9 @@ function App() {
   // States for upload mode
   const [selectedFile, setSelectedFile] = useState(null);
   const [result, setResult] = useState(null);
+  
+  // New state to control display after analyze button is pressed
+  const [analysisStarted, setAnalysisStarted] = useState(false);
   
   // Common states
   const [loading, setLoading] = useState(false);
@@ -34,6 +37,10 @@ function App() {
       alert("Please select a video file.");
       return;
     }
+    
+    // Set analysisStarted to true once the button is pressed
+    setAnalysisStarted(true);
+    
     setLoading(true);
     setResult(null);
     setPeopleCount(0);
@@ -70,7 +77,7 @@ function App() {
         setCurrentFrame={() => {}}
         setQuadrantCounts={setQuadrantCounts}
         setDangerZones={setDangerZones}
-        setFrames={setFrames} // New prop to update frames array
+        setFrames={setFrames} // prop to update frames array
       />
 
       <header className="header">
@@ -110,38 +117,34 @@ function App() {
             </div>
           )}
 
-          <div className="people-count-section" style={{ marginTop: "20px" }}>
-            <h2>Total People Detected in Frame: {peopleCount}</h2>
-          </div>
-
-          {/* Quadrant Section */}
-          <div className="quadrant-section">
-            <h3>Live Quadrant Counts (12 Regions):</h3>
-            {Object.keys(quadrantCounts).length > 0 ? (
-              <div className="quadrant-grid">
-                {Object.entries(quadrantCounts).map(([key, value]) => (
-                  <div key={key} className={`quadrant-cell ${dangerZones.includes(key) ? 'danger' : ''}`}>
-                    <p>{key}: {value}</p>
-                  </div>
-                ))}
+          {/* Only display these sections after the analyze button is pressed */}
+          {analysisStarted && (
+            <>
+              <div className="people-count-section" style={{ marginTop: "20px" }}>
+                <h2>Total People Detected in Frame: {peopleCount}</h2>
               </div>
-            ) : (
-              <p>No quadrant data available yet</p>
-            )}
-          </div>
 
-          {/* Live Processed Frame */}
-          <div className="video-frame-section">
-            <div className="video-container">
-              <h3>Live Processed Frame</h3>
-              {latestFrame ? (
-                <img src={latestFrame} alt="Processed Frame" className="frame-preview" />
-              ) : (
-                <p>No live frame available yet</p>
-              )}
-            </div>
-          </div>
-
+              {/* Processed Frame & Quadrant Grid Container */}
+              <div className="video-container">
+                <h3>Live Processed Frame</h3>
+                {latestFrame ? (
+                  <img src={latestFrame} alt="Processed Frame" className="frame-preview" />
+                ) : (
+                  <p>No live frame available yet</p>
+                )}
+                {/* The quadrant grid is positioned to fill the same space */}
+                {Object.keys(quadrantCounts).length > 0 && (
+                  <div className="quadrant-grid">
+                    {Object.entries(quadrantCounts).map(([key, value]) => (
+                      <div key={key} className={`quadrant-cell ${dangerZones.includes(key) ? 'danger' : ''}`}>
+                        <p>{key}: {value}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
 
           {result && (
             <div className="result-section">
