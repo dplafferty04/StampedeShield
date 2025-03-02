@@ -16,7 +16,7 @@
     font-size: 16px;
   }
   
-  .live-frame-display {
+  .live-processed-frame {
     margin-top: 10px;
   }
   
@@ -43,5 +43,28 @@
     border-radius: 5px;
     margin-top: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Quadrant Section (matching your existing grid for uploaded video) */
+  .quadrant-section {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .quadrant-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 columns for 12 regions arranged as 3 rows x 4 columns */
+    gap: 10px;
+    justify-items: center;
+    margin-top: 10px;
+  }
+  
+  .quadrant-cell {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #fafafa;
+    width: 100%;
+    max-width: 100px;
   }
   
