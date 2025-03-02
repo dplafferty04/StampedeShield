@@ -118,18 +118,11 @@ async def process_video(video):
             # Update previous quadrant counts for next iteration
             prev_quadrant_counts = quadrant_counts.copy()
             
-            # Send frame info via WebSocket (include quadrant and alert data)
+            # Encode the original frame to base64
             _, buffer = cv2.imencode(".jpg", frame)
             frame_base64 = base64.b64encode(buffer).decode("utf-8")
-            await websocket_manager.send_data({
-                "frame": frame_base64,
-                "people_in_frame": people_in_frame,
-                "progress": (frame_count / total_frames) * 100,
-                "quadrant_counts": quadrant_counts,
-                "danger_zones": danger_zones
-            })
             
-            # Generate heatmap overlay (unchanged)
+            # Generate heatmap overlay
             heatmap = np.zeros((height, width), dtype=np.float32)
             for box in results[0].boxes:
                 if int(box.cls[0]) == 0:
@@ -141,11 +134,26 @@ async def process_video(video):
             overlay = cv2.addWeighted(frame, 0.6, heatmap, 0.4, 0)
             out.write(overlay)
             
+            # Encode the heatmap overlay to base64
+            _, overlayBuffer = cv2.imencode(".jpg", overlay)
+            heatmap_base64 = base64.b64encode(overlayBuffer).decode("utf-8")
+            
+            # Send frame info via WebSocket (include quadrant, alert, and heatmap data)
+            await websocket_manager.send_data({
+                "frame": frame_base64,
+                "heatmap": heatmap_base64,
+                "people_in_frame": people_in_frame,
+                "progress": (frame_count / total_frames) * 100,
+                "quadrant_counts": quadrant_counts,
+                "danger_zones": danger_zones
+            })
+            
             if time.time() - start_time > 60:
                 console.print("[bold red]Timeout reached! Stopping processing.[/bold red] ⚠️")
                 break
 
     cap.release()
+    out.release()
     os.remove(video_path)
 
     total_people = sum(people_count_per_frame)

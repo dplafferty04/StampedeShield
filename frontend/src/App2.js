@@ -3,11 +3,10 @@ import "./App2.css";
 
 function App2({ frames }) {
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
+  const [displayMode, setDisplayMode] = useState("original"); // "original" or "heatmap"
 
-  // Log frames whenever they change for debugging
   useEffect(() => {
-    console.log("App2 received frames:", frames);
-    // Ensure currentFrameIndex is valid
+    console.log("Frames received in App2:", frames);
     if (frames.length > 0 && currentFrameIndex >= frames.length) {
       setCurrentFrameIndex(frames.length - 1);
     }
@@ -18,22 +17,59 @@ function App2({ frames }) {
     setCurrentFrameIndex(index);
   };
 
+  // Get current frame data
   const currentFrameData = frames[currentFrameIndex] || {};
+
+  // Determine which image to show based on displayMode.
+  // For "original", use data.frame; for "heatmap", use data.heatmap.
+  let imageSrc = "";
+  if (displayMode === "original") {
+    if (currentFrameData.frame) {
+      imageSrc = `data:image/jpeg;base64,${currentFrameData.frame}`;
+    }
+  } else {
+    if (currentFrameData.heatmap) {
+      imageSrc = `data:image/jpeg;base64,${currentFrameData.heatmap}`;
+    }
+  }
+
+  // Log displayMode and imageSrc for debugging
+  useEffect(() => {
+    console.log("Display mode:", displayMode);
+    console.log("Current image source length:", imageSrc.length);
+  }, [displayMode, imageSrc]);
 
   return (
     <div className="app2-container">
       <h1>Frame Scrubber</h1>
+      
+      {/* Toggle between Original and Heatmap */}
+      <div className="display-toggle">
+        <button
+          onClick={() => setDisplayMode("original")}
+          className={displayMode === "original" ? "active" : ""}
+        >
+          Original
+        </button>
+        <button
+          onClick={() => setDisplayMode("heatmap")}
+          className={displayMode === "heatmap" ? "active" : ""}
+        >
+          Heatmap
+        </button>
+      </div>
+      
       {frames.length > 0 ? (
         <>
           <div className="frame-display">
-            {currentFrameData.frame ? (
+            {imageSrc ? (
               <img
-                src={`data:image/jpeg;base64,${currentFrameData.frame}`}
+                src={imageSrc}
                 alt="Scrubbed Frame"
                 className="scrubbed-frame"
               />
             ) : (
-              <p>No frame available for this frame.</p>
+              <p>No image available for this frame.</p>
             )}
           </div>
           <div className="detection-info">
@@ -49,7 +85,8 @@ function App2({ frames }) {
             </p>
             <p>
               <strong>Danger Zones:</strong>{" "}
-              {currentFrameData.danger_zones && currentFrameData.danger_zones.length > 0
+              {currentFrameData.danger_zones &&
+              currentFrameData.danger_zones.length > 0
                 ? currentFrameData.danger_zones.join(", ")
                 : "None"}
             </p>
