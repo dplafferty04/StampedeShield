@@ -78,12 +78,6 @@ function App2({ frames }) {
               {currentFrameData.people_in_frame || 0}
             </p>
             <p>
-              <strong>Quadrant Counts:</strong>{" "}
-              {currentFrameData.quadrant_counts
-                ? JSON.stringify(currentFrameData.quadrant_counts)
-                : "N/A"}
-            </p>
-            <p>
               <strong>Danger Zones:</strong>{" "}
               {currentFrameData.danger_zones &&
               currentFrameData.danger_zones.length > 0

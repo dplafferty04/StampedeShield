@@ -132,8 +132,7 @@ function LiveCamera() {
                 className={`quadrant-cell ${liveAvgQuadrants[key] > avgQuadrantThreshold ? "danger" : ""}`}
               >
                 <p>{key}</p>
-                <p>Current: {liveDetection.quadrant_counts[key]}</p>
-                <p>Avg: {liveAvgQuadrants[key] ? liveAvgQuadrants[key].toFixed(2) : 0}</p>
+                <p>{liveDetection.quadrant_counts[key]}</p>
               </div>
             ))}
           </div>
