@@ -1,0 +1,47 @@
+.live-camera-container {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .live-video {
+    width: 100%;
+    max-width: 450px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .live-detection-info {
+    margin-top: 10px;
+    font-size: 16px;
+  }
+  
+  .live-frame-display {
+    margin-top: 10px;
+  }
+  
+  .stop-live-btn {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    background-color: #e74c3c;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .stop-live-btn:hover {
+    background-color: #c0392b;
+  }
+  
+  .frame-preview {
+    width: 100%;
+    max-width: 450px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-top: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  

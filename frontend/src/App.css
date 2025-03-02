@@ -20,7 +20,7 @@ body {
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
   position: relative;
-  top: -30px; /* Moves the text box higher */
+  top: -30px;
 }
 
 /* Header */
@@ -37,6 +37,27 @@ h1 {
 p {
   color: #555;
   font-size: 14px;
+}
+
+/* Mode Selection */
+.mode-selection {
+  margin-bottom: 20px;
+}
+
+.mode-selection button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  background-color: #3498db;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.mode-selection button:hover {
+  background-color: #2980b9;
 }
 
 /* Upload Section */
@@ -121,43 +142,7 @@ p {
   font-weight: bold;
 }
 
-/* Frame-wise Count */
-.frame-count {
-  max-height: 150px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: #fafafa;
-  text-align: left;
-  margin-top: 10px;
-}
-
-/* Live WebSocket Frames (Top) */
-.video-frame-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-/* Heatmap & Original Video (Bottom) */
-.video-processing-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-/* Video & Live Frame Containers */
-.video-container {
-  flex: 1;
-  text-align: center;
-}
-
-/* Videos & Live Frames */
+/* Live Feed / Video Sections */
 .video-player,
 .frame-preview {
   width: 100%;
@@ -168,19 +153,34 @@ p {
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Heatmap Video (Appears Below) */
-.video-section {
+/* Upload Video & Heatmap Section (Bottom) */
+.video-processing-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
   margin-top: 20px;
-  text-align: center;
 }
 
-h3 {
+/* Live Feed Section */
+.live-feed-section {
+  margin-top: 20px;
+}
+
+.live-feed-section video {
+  margin-bottom: 10px;
+}
+
+.live-detection {
+  margin-top: 10px;
   font-size: 16px;
-  margin-top: 5px;
-  color: #34495e;
 }
 
-/* New Quadrant Section */
+.live-frame-display {
+  margin-top: 10px;
+}
+
+/* Quadrant Section */
 .quadrant-section {
   margin-top: 20px;
   text-align: center;
@@ -188,7 +188,7 @@ h3 {
 
 .quadrant-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, 1fr);  /* 4 columns for 3 rows x 4 columns */
   gap: 10px;
   justify-items: center;
   margin-top: 10px;

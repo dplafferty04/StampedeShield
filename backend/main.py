@@ -6,6 +6,7 @@ import os
 import time
 import asyncio
 from utils.video_processing import process_video
+from utils.live_detection import router as live_detection_router
 from ultralytics import YOLO
 from websocket_manager import websocket_manager
 
@@ -47,3 +48,5 @@ async def detect_crowd(video: UploadFile = File(...)):
         "frame_wise_count": results["frame_wise_count"],
         "heatmap_video_url": f"http://127.0.0.1:8000/videos/output_{video.filename}"  # Add correct URL for heatmap
     }
+
+app.include_router(live_detection_router)
