@@ -64,7 +64,6 @@ body {
   margin-left: 50px; /* Space between logo and header */
   margin-right: 20px; /* Space between logo and header */
   border-radius: 0%;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Mode Buttons - Clean with rounded edges */
@@ -79,7 +78,7 @@ body {
   padding: 12px 30px;
   margin: 0 15px;
   cursor: pointer;
-  background-color: #4caf50; /* Bright Green */
+  background-color: #1e3a8a; /* Bright blue */
   color: white;
   border: none;
   border-radius: 30px;
@@ -87,7 +86,7 @@ body {
 }
 
 .mode-btn:hover {
-  background-color: #388e3c; /* Darker green on hover */
+  background-color: #1a3276; /* Darker blue on hover */
   transform: scale(1.05); /* Slight hover animation */
 }
 
