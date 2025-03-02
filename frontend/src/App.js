@@ -12,6 +12,7 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [peopleCount, setPeopleCount] = useState(0);
   const [latestFrame, setLatestFrame] = useState(null);
+  const [quadrantCounts, setQuadrantCounts] = useState({}); // New state for 12-quadrant data
 
   const originalVideoRef = useRef(null);
   const heatmapVideoRef = useRef(null);
@@ -27,7 +28,7 @@ function App() {
     setPeopleCount(0);
     setProgress(0);
     
-    // ✅ Keep the original video URL
+    // Keep the original video URL
     setVideoURL(URL.createObjectURL(selectedFile));
 
     const formData = new FormData();
@@ -38,7 +39,7 @@ function App() {
       setResult(response.data);
       setHeatmapURL(response.data.heatmap_video_url || "https://www.w3schools.com/html/mov_bbb.mp4");
       
-      // ✅ Reset video time to 0 when processing is done
+      // Reset video time to 0 when processing is done
       if (originalVideoRef.current) {
         originalVideoRef.current.currentTime = 0;
       }
@@ -55,12 +56,13 @@ function App() {
 
   return (
     <div className="container">
-      {/* ✅ WebSocket Handler for Real-time Frames */}
+      {/* WebSocket Handler for Real-time Frames and Quadrant Data */}
       <WebSocketHandler
         setLatestFrame={setLatestFrame}
         setPeopleCount={setPeopleCount}
         setProgress={setProgress}
         setCurrentFrame={() => {}} // Not needed for now
+        setQuadrantCounts={setQuadrantCounts} // New prop for quadrant counts
       />
 
       <header>
@@ -69,7 +71,12 @@ function App() {
       </header>
 
       <div className="upload-section">
-        <input type="file" accept="video/*" className="file-input" onChange={(e) => setSelectedFile(e.target.files[0])} />
+        <input
+          type="file"
+          accept="video/*"
+          className="file-input"
+          onChange={(e) => setSelectedFile(e.target.files[0])}
+        />
         <button onClick={handleFileUpload} disabled={loading} className="upload-btn">
           {loading ? "Processing..." : "Upload & Analyze"}
         </button>
@@ -86,7 +93,23 @@ function App() {
 
       <h2>Total People Detected in Frame: {peopleCount}</h2>
 
-      {/* ✅ Live Frames (TOP - Side by Side) */}
+      {/* New Section: Live Quadrant Counts */}
+      <div className="quadrant-section">
+        <h3>Live Quadrant Counts (12 Regions):</h3>
+        {Object.keys(quadrantCounts).length > 0 ? (
+          <div className="quadrant-grid">
+            {Object.entries(quadrantCounts).map(([key, value]) => (
+              <div key={key} className="quadrant-cell">
+                <p>{key}: {value}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No quadrant data available yet</p>
+        )}
+      </div>
+
+      {/* Live Frames (TOP - Side by Side) */}
       <div className="video-frame-section">
         <div className="video-container">
           <h3>Live Processed Frame</h3>
@@ -98,7 +121,7 @@ function App() {
         </div>
       </div>
 
-      {/* ✅ Heatmap & Original Video (BOTTOM - Side by Side) */}
+      {/* Heatmap & Original Video (BOTTOM - Side by Side) */}
       <div className="video-processing-section">
         {/* Original Video (Bottom Left) */}
         {videoURL && (
@@ -112,10 +135,33 @@ function App() {
         {heatmapURL && (
           <div className="video-container">
             <h3>AI Generated Heatmap</h3>
-            <video ref={heatmapVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
+            <video ref={heatmapVideoRef} src={heatmapURL} controls autoPlay muted className="video-player" />
           </div>
         )}
       </div>
+
+      {result && (
+        <div className="result-section">
+          <h2>Final Detection Results 📊</h2>
+          <div className="result-content">
+            <p><strong>Total People Detected:</strong> {result.total_people_detected}</p>
+            <p><strong>Average People Per Frame:</strong> {result.average_people_per_frame}</p>
+            <p><strong>Processing Time:</strong> {result.processing_time_seconds} sec</p>
+          </div>
+          {result.avg_quadrant_counts && (
+            <div className="quadrant-result">
+              <h3>Average Quadrant Counts:</h3>
+              {Object.entries(result.avg_quadrant_counts).map(([key, value]) => (
+                <p key={key}>{key}: {value.toFixed(2)}</p>
+              ))}
+              <h3>Quadrant Alerts:</h3>
+              {result.quadrant_alerts && Object.entries(result.quadrant_alerts).map(([key, value]) => (
+                <p key={key}>{key}: {value ? "Overcrowded" : "Safe"}</p>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

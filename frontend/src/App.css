@@ -186,3 +186,25 @@ h3 {
   gap: 30px;
   font-weight: bold;
 }
+/* Quadrant Section Styles */
+.quadrant-section {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.quadrant-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  justify-items: center;
+  margin-top: 10px;
+}
+
+.quadrant-cell {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #fafafa;
+  width: 100%;
+  max-width: 100px;
+}
