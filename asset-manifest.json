@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/StampedeShield/static/css/main.f542b4bb.css",
+    "main.js": "/StampedeShield/static/js/main.f47a2562.js",
+    "static/js/488.8a0cfee2.chunk.js": "/StampedeShield/static/js/488.8a0cfee2.chunk.js",
+    "static/media/Logo.png": "/StampedeShield/static/media/Logo.362675cfaac9de006c47.png",
+    "index.html": "/StampedeShield/index.html",
+    "main.f542b4bb.css.map": "/StampedeShield/static/css/main.f542b4bb.css.map",
+    "main.f47a2562.js.map": "/StampedeShield/static/js/main.f47a2562.js.map",
+    "488.8a0cfee2.chunk.js.map": "/StampedeShield/static/js/488.8a0cfee2.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f542b4bb.css",
+    "static/js/main.f47a2562.js"
+  ]
+}
