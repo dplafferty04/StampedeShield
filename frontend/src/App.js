@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import "./App.css";
-import WebSocketHandler from "./WebSocketHandler"; // ✅ Import WebSocketHandler
+import WebSocketHandler from "./WebSocketHandler"; // Import updated WebSocketHandler
 
 function App() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -11,8 +11,8 @@ function App() {
   const [heatmapURL, setHeatmapURL] = useState(null);
   const [progress, setProgress] = useState(0);
   const [peopleCount, setPeopleCount] = useState(0);
-  const [latestFrame, setLatestFrame] = useState(null);
-  const [quadrantCounts, setQuadrantCounts] = useState({}); // New state for 12-quadrant data
+  const [latestFrame, setLatestFrame] = useState(null); // Live WebSocket frame
+  const [quadrantCounts, setQuadrantCounts] = useState({}); // Live quadrant data from backend
 
   const originalVideoRef = useRef(null);
   const heatmapVideoRef = useRef(null);
@@ -28,7 +28,7 @@ function App() {
     setPeopleCount(0);
     setProgress(0);
     
-    // Keep the original video URL
+    // Keep the original video URL for later display
     setVideoURL(URL.createObjectURL(selectedFile));
 
     const formData = new FormData();
@@ -62,7 +62,7 @@ function App() {
         setPeopleCount={setPeopleCount}
         setProgress={setProgress}
         setCurrentFrame={() => {}} // Not needed for now
-        setQuadrantCounts={setQuadrantCounts} // New prop for quadrant counts
+        setQuadrantCounts={setQuadrantCounts} // New prop to receive quadrant data
       />
 
       <header>
@@ -93,7 +93,7 @@ function App() {
 
       <h2>Total People Detected in Frame: {peopleCount}</h2>
 
-      {/* New Section: Live Quadrant Counts */}
+      {/* Quadrant Section */}
       <div className="quadrant-section">
         <h3>Live Quadrant Counts (12 Regions):</h3>
         {Object.keys(quadrantCounts).length > 0 ? (
@@ -109,7 +109,7 @@ function App() {
         )}
       </div>
 
-      {/* Live Frames (TOP - Side by Side) */}
+      {/* Live Processed Frame */}
       <div className="video-frame-section">
         <div className="video-container">
           <h3>Live Processed Frame</h3>
@@ -121,21 +121,18 @@ function App() {
         </div>
       </div>
 
-      {/* Heatmap & Original Video (BOTTOM - Side by Side) */}
+      {/* Bottom Section: Original Video & AI Heatmap */}
       <div className="video-processing-section">
-        {/* Original Video (Bottom Left) */}
         {videoURL && (
           <div className="video-container">
             <h3>Original Uploaded Video</h3>
             <video ref={originalVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
           </div>
         )}
-
-        {/* AI Heatmap Video (Bottom Right) */}
         {heatmapURL && (
           <div className="video-container">
             <h3>AI Generated Heatmap</h3>
-            <video ref={heatmapVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
+            <video ref={heatmapVideoRef} src={heatmapURL} controls autoPlay muted className="video-player" />
           </div>
         )}
       </div>

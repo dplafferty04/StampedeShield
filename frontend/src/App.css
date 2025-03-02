@@ -102,12 +102,22 @@ p {
 
 /* Results Section */
 .result-section {
-  margin-top: 10px;
+  margin-top: 30px;
   text-align: center;
 }
 
 .result-section h2 {
   color: #27ae60;
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+.result-content {
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  font-weight: bold;
 }
 
 /* Frame-wise Count */
@@ -122,7 +132,7 @@ p {
   margin-top: 10px;
 }
 
-/* ✅ Live WebSocket Frames (Top) */
+/* Live WebSocket Frames (Top) */
 .video-frame-section {
   display: flex;
   justify-content: center;
@@ -131,7 +141,7 @@ p {
   margin-top: 20px;
 }
 
-/* ✅ Heatmap & Original Video (Bottom) */
+/* Heatmap & Original Video (Bottom) */
 .video-processing-section {
   display: flex;
   justify-content: center;
@@ -169,24 +179,7 @@ h3 {
   color: #34495e;
 }
 
-/* Extra Styling for Results */
-.result-section {
-  margin-top: 30px;
-}
-
-.result-section h2 {
-  font-size: 26px;
-  margin-bottom: 20px;
-}
-
-.result-content {
-  font-size: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  font-weight: bold;
-}
-/* Quadrant Section Styles */
+/* New Quadrant Section */
 .quadrant-section {
   margin-top: 20px;
   text-align: center;
