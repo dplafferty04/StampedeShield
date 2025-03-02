@@ -13,6 +13,7 @@ function App() {
   const [peopleCount, setPeopleCount] = useState(0);
   const [latestFrame, setLatestFrame] = useState(null); // Live WebSocket frame
   const [quadrantCounts, setQuadrantCounts] = useState({}); // Live quadrant data from backend
+  const [isProcessing, setIsProcessing] = useState(false); // New state to track if processing is ongoing
 
   const originalVideoRef = useRef(null);
   const heatmapVideoRef = useRef(null);
@@ -22,7 +23,7 @@ function App() {
       alert("Please select a video file.");
       return;
     }
-
+    setIsProcessing(true); // Set processing state to true when starting
     setLoading(true);
     setResult(null);
     setPeopleCount(0);
@@ -52,6 +53,7 @@ function App() {
     }
 
     setLoading(false);
+    setIsProcessing(false); // Set processing state to false when complete
   };
 
   return (
@@ -84,14 +86,20 @@ function App() {
 
       {loading && <p className="loading-text">Analyzing video... Please wait.</p>}
 
-      <div className="progress-section">
-        <h3>Processing Progress: {progress}%</h3>
-        <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+      {/* Only show progress section when processing is ongoing */}
+      {isProcessing && (
+        <div className="progress-section">
+          <h3>Processing Progress: {progress}%</h3>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+          </div>
         </div>
-      </div>
+      )}
 
-      <h2>Total People Detected in Frame: {peopleCount}</h2>
+      {/* Added margin-top to ensure consistent spacing when progress bar is hidden */}
+      <div className="people-count-section" style={{ marginTop: '20px' }}>
+        <h2>Total People Detected in Frame: {peopleCount}</h2>
+      </div>
 
       {/* Quadrant Section */}
       <div className="quadrant-section">
