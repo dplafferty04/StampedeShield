@@ -135,7 +135,7 @@ function App() {
         {heatmapURL && (
           <div className="video-container">
             <h3>AI Generated Heatmap</h3>
-            <video ref={heatmapVideoRef} src={heatmapURL} controls autoPlay muted className="video-player" />
+            <video ref={heatmapVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
           </div>
         )}
       </div>
