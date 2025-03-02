@@ -77,7 +77,6 @@ function App() {
         <h1 className="title">
           <img src={logo} alt="Logo" className="logo" /> Stampede Shield
         </h1>
-        <p className="subtitle">Select a mode: Upload Video, Live Webcam, or Frame Scrubber</p>
       </header>
 
       <div className="mode-selection">

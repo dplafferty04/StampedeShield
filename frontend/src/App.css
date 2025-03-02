@@ -46,7 +46,7 @@ body {
   color: #1e3a8a; /* Deep Blue */
   font-family: 'Rockwell', serif;
   text-transform: uppercase;
-  margin-right: 20px; /* Space between title and logo */
+  margin-right: 0px; /* Space between title and logo */
   white-space: nowrap; /* Prevent text wrapping */
 }
 
@@ -59,7 +59,7 @@ body {
 
 /* Logo Styling */
 .logo {
-  width: 200px; /* Adjusted to fit better beside the title */
+  width: 100px; /* Adjusted to fit better beside the title */
   height: auto; /* Maintain aspect ratio */
   margin-left: 50px; /* Space between logo and header */
   margin-right: 20px; /* Space between logo and header */
@@ -161,14 +161,11 @@ body {
 }
 
 /* Video Section */
-.video-container {
-  text-align: center;
-}
+
 
 .video-player, .frame-preview {
-  width: 100%;
-  max-width: 800px;
-  margin: 20px auto;
+  width: 900px;
+  margin: auto;
   height: auto;
   border-radius: 12px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
@@ -177,6 +174,12 @@ body {
 .video-container video {
   max-width: 100%;
   border-radius: 10px;
+}
+
+.video-frame-section{
+  width:90%;
+  height: auto;
+  margin:auto;
 }
 
 /* General Button Styling */
@@ -228,10 +231,5 @@ button:hover {
 
   .title {
     margin-right: 0; /* Remove right margin when stacked */
-  }
-
-  .logo {
-    margin-left: 0; /* Remove left margin when stacked */
-    margin-bottom: 20px; /* Add bottom margin for spacing */
   }
 
