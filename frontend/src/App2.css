@@ -14,18 +14,18 @@
     font-size: 14px;
     border: none;
     border-radius: 5px;
-    background-color: #3498db;
+    background-color: #1e3a8a;
     color: white;
     cursor: pointer;
     transition: background-color 0.3s;
   }
   
   .display-toggle button:hover {
-    background-color: #2980b9;
+    background-color: #1e3a8a;
   }
   
   .display-toggle .active {
-    background-color: #27ae60;
+    background-color: #1e3a8a;
   }
   
   .frame-display {
