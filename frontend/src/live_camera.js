@@ -21,15 +21,18 @@ function LiveCamera() {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         if (liveVideoRef.current) {
           liveVideoRef.current.srcObject = stream;
-          liveVideoRef.current.play();
+          // Add a delay of 100ms before calling play()
+          setTimeout(() => {
+            liveVideoRef.current.play();
+          }, 100);
         }
-        // Capture a frame every 1000ms
         liveIntervalRef.current = setInterval(captureAndDetectFrame, 1000);
       } catch (error) {
         console.error("Error accessing webcam:", error);
         alert("Webcam access is required for live feed mode.");
       }
     }
+    
     startLiveFeed();
 
     // Cleanup on unmount
