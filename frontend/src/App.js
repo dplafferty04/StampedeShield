@@ -19,9 +19,10 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [peopleCount, setPeopleCount] = useState(0);
   const [quadrantCounts, setQuadrantCounts] = useState({});
+  const [dangerZones, setDangerZones] = useState([]); // New state for danger alerts
 
   // Live WebSocket frame (used in upload mode for live processing, if any)
-  const [latestFrame, setLatestFrame] = useState(null); // Live WebSocket frame
+  const [latestFrame, setLatestFrame] = useState(null);
 
   const originalVideoRef = useRef(null);
   const heatmapVideoRef = useRef(null);
@@ -69,15 +70,16 @@ function App() {
         setLatestFrame={setLatestFrame}
         setPeopleCount={setPeopleCount}
         setProgress={setProgress}
-        setCurrentFrame={() => {}} // Not needed for now
-        setQuadrantCounts={setQuadrantCounts} // New prop to receive quadrant data
+        setCurrentFrame={() => {}}
+        setQuadrantCounts={setQuadrantCounts}
+        setDangerZones={setDangerZones}
       />
 
       <header className="header">
         <h1 className="title">
           <img src={logo} alt="Logo" className="logo" /> 
+          Stampede Shield
         </h1>
-        <h1 className="title">Stampede Shield</h1>
         <p className="subtitle">Select a mode: Upload Video or Live Webcam</p>
       </header>
 
@@ -112,7 +114,6 @@ function App() {
             </div>
           )}
 
-          {/* Added margin-top to ensure consistent spacing when progress bar is hidden */}
           <div className="people-count-section" style={{ marginTop: "20px" }}>
             <h2>Total People Detected in Frame: {peopleCount}</h2>
           </div>
@@ -132,6 +133,16 @@ function App() {
               <p>No quadrant data available yet</p>
             )}
           </div>
+
+          {/* Display Danger Zones if available */}
+          {dangerZones.length > 0 && (
+            <div className="alert-section">
+              <h3>Quadrant Danger Alerts:</h3>
+              <p style={{ color: "red" }}>
+                {dangerZones.join(", ")} are showing rapid changes!
+              </p>
+            </div>
+          )}
 
           {/* Live Processed Frame */}
           <div className="video-frame-section">

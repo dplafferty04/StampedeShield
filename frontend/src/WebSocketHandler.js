@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-function WebSocketHandler({ setLatestFrame, setPeopleCount, setProgress, setQuadrantCounts }) {
+function WebSocketHandler({ setLatestFrame, setPeopleCount, setProgress, setQuadrantCounts, setDangerZones }) {
   useEffect(() => {
     const ws = new WebSocket("ws://127.0.0.1:8000/ws");
 
@@ -26,6 +26,11 @@ function WebSocketHandler({ setLatestFrame, setPeopleCount, setProgress, setQuad
         if (data.quadrant_counts) {
           setQuadrantCounts(data.quadrant_counts);
         }
+        
+        // Update danger zones (if provided)
+        if (data.danger_zones) {
+          setDangerZones(data.danger_zones);
+        }
       } catch (error) {
         console.error("❌ Error parsing WebSocket data:", error);
       }
@@ -35,7 +40,7 @@ function WebSocketHandler({ setLatestFrame, setPeopleCount, setProgress, setQuad
     ws.onclose = () => console.warn("⚠️ WebSocket closed.");
 
     return () => ws.close();
-  }, [setLatestFrame, setPeopleCount, setProgress, setQuadrantCounts]);
+  }, [setLatestFrame, setPeopleCount, setProgress, setQuadrantCounts, setDangerZones]);
 
   return null;
 }

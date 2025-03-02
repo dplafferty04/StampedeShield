@@ -16,7 +16,6 @@ function LiveCamera() {
           liveVideoRef.current.srcObject = stream;
           liveVideoRef.current.play();
         }
-        // Capture a frame every second (adjust interval as needed)
         liveIntervalRef.current = setInterval(captureAndDetectFrame, 1000);
       } catch (error) {
         console.error("Error accessing webcam:", error);
@@ -24,15 +23,18 @@ function LiveCamera() {
       }
     }
     startLiveFeed();
-
-    // Cleanup on unmount
+  
+    // Capture current ref value for cleanup
+    const currentVideo = liveVideoRef.current;
+    
     return () => {
       if (liveIntervalRef.current) clearInterval(liveIntervalRef.current);
-      if (liveVideoRef.current && liveVideoRef.current.srcObject) {
-        liveVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      if (currentVideo && currentVideo.srcObject) {
+        currentVideo.srcObject.getTracks().forEach((track) => track.stop());
       }
     };
   }, []);
+  
 
   const captureAndDetectFrame = async () => {
     if (!liveVideoRef.current) return;
@@ -83,14 +85,19 @@ function LiveCamera() {
       <h2>Live Webcam Feed</h2>
       <video ref={liveVideoRef} className="live-video" autoPlay muted></video>
       {liveDetection && (
-        <div className="live-detection-info">
-          <p><strong>People in Frame:</strong> {liveDetection.people_in_frame}</p>
-          <p>
-            <strong>Danger Zones:</strong>{" "}
-            {liveDetection.danger_zones && liveDetection.danger_zones.join(", ")}
-          </p>
-        </div>
-      )}
+  <div className="live-detection-info">
+    <p><strong>People in Frame:</strong> {liveDetection.people_in_frame}</p>
+    <p>
+      <strong>Quadrant Counts:</strong> {JSON.stringify(liveDetection.quadrant_counts)}
+    </p>
+    {liveDetection.danger_zones && liveDetection.danger_zones.length > 0 && (
+      <p style={{ color: "red" }}>
+        <strong>Alert!</strong> Danger in quadrants: {liveDetection.danger_zones.join(", ")}
+      </p>
+    )}
+  </div>
+)}
+
       {liveProcessedFrame && (
         <div className="live-processed-frame">
           <h3>Processed Live Frame</h3>

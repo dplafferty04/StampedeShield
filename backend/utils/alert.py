@@ -2,7 +2,14 @@ from rich.console import Console
 
 console = Console()
 
-def check_overcrowding(people_count, max_capacity, quadrant_counts=None, quadrant_threshold=None):
+def check_overcrowding(
+    people_count, 
+    max_capacity, 
+    quadrant_counts=None, 
+    quadrant_threshold=None,
+    quadrant_deltas=None,
+    scatter_threshold=None
+):
     # Global overcrowding check
     if people_count > max_capacity:
         console.print(f"[bold red]⚠️ ALERT! Overcrowding detected! {people_count} people detected, exceeding limit of {max_capacity}.[/bold red]")
@@ -16,17 +23,25 @@ def check_overcrowding(people_count, max_capacity, quadrant_counts=None, quadran
     quadrant_alerts = {}
     if quadrant_counts is not None and quadrant_threshold is not None:
         for quadrant, count in quadrant_counts.items():
+            alert = False
+            messages = []
             if count > quadrant_threshold:
-                console.print(f"[bold red]⚠️ ALERT! {quadrant} has high density: {count} people (threshold: {quadrant_threshold}).[/bold red]")
-                quadrant_alerts[quadrant] = {
-                    "alert": True,
-                    "message": f"Alert: {count} people detected in {quadrant}, exceeding threshold of {quadrant_threshold}."
-                }
-            else:
-                quadrant_alerts[quadrant] = {
-                    "alert": False,
-                    "message": f"Safe: {count} people detected in {quadrant} (threshold: {quadrant_threshold})."
-                }
+                alert = True
+                msg = f"Alert: {count} people in {quadrant}, exceeding threshold of {quadrant_threshold}."
+                console.print(f"[bold red]⚠️ ALERT! {msg}[/bold red]")
+                messages.append(msg)
+            # Check for rapid change if delta info is provided
+            if quadrant_deltas is not None and scatter_threshold is not None:
+                delta = quadrant_deltas.get(quadrant, 0)
+                if abs(delta) > scatter_threshold:
+                    alert = True
+                    msg = f"Warning: Rapid change in {quadrant} with a difference of {delta} people."
+                    console.print(f"[bold yellow]⚠️ WARNING! {msg}[/bold yellow]")
+                    messages.append(msg)
+            quadrant_alerts[quadrant] = {
+                "alert": alert,
+                "message": " ".join(messages) if messages else f"Safe: {count} people in {quadrant} (threshold: {quadrant_threshold})."
+            }
     return {
         "global_alert": global_alert,
         "global_message": global_message,
