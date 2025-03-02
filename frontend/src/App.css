@@ -1,38 +1,210 @@
-.App {
+/* General Styles */
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Container */
+.container {
+  background: white;
+  max-width: 1000px;
+  width: 95%;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  top: -30px;
+}
+
+/* Header */
+header {
+  margin-bottom: 10px;
+}
+
+h1 {
+  padding-top: 20px;
+  color: #2c3e50;
+  font-size: 24px;
+}
+
+p {
+  color: #555;
+  font-size: 14px;
+}
+
+/* Mode Selection */
+.mode-selection {
+  margin-bottom: 20px;
+}
+
+.mode-selection button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  background-color: #3498db;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.mode-selection button:hover {
+  background-color: #2980b9;
+}
+
+/* Upload Section */
+.upload-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.file-input {
+  padding: 8px;
+  border: 2px solid #3498db;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.upload-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.upload-btn:hover {
+  background-color: #2980b9;
+}
+
+.upload-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* Loading Text */
+.loading-text {
+  color: #e67e22;
+  font-weight: bold;
+}
+
+/* Progress Bar */
+.progress-section {
+  margin-top: 15px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background-color: #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #27ae60;
+  transition: width 0.3s ease-in-out;
+}
+
+/* Results Section */
+.result-section {
+  margin-top: 30px;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.result-section h2 {
+  color: #27ae60;
+  font-size: 26px;
+  margin-bottom: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.result-content {
+  font-size: 20px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  gap: 30px;
+  font-weight: bold;
 }
 
-.App-link {
-  color: #61dafb;
+/* Live Feed / Video Sections */
+.video-player,
+.frame-preview {
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Upload Video & Heatmap Section (Bottom) */
+.video-processing-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Live Feed Section */
+.live-feed-section {
+  margin-top: 20px;
+}
+
+.live-feed-section video {
+  margin-bottom: 10px;
+}
+
+.live-detection {
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+.live-frame-display {
+  margin-top: 10px;
+}
+
+/* Quadrant Section */
+.quadrant-section {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.quadrant-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);  /* 4 columns for 3 rows x 4 columns */
+  gap: 10px;
+  justify-items: center;
+  margin-top: 10px;
+}
+
+.quadrant-cell {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #fafafa;
+  width: 100%;
+  max-width: 100px;
+}
+.logo {
+  width: 90px;
+  height: auto;
+  vertical-align: middle;
+  margin-right: 10px;
 }
