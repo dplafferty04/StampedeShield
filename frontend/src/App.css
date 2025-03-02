@@ -7,7 +7,7 @@
 
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: #f5f7fa; /* Soft gray background */
+  background-color: #4E6E81; /* Soft gray background */
   color: #333; /* Dark text for readability */
   display: flex;
   justify-content: center;
@@ -19,7 +19,7 @@ body {
 /* Container - Expanded width */
 .container {
   background: white;
-  max-width: 1400px; /* Increased max-width for a wider container */
+  max-width: 1200px; /* Adjusted max-width for a wider container */
   width: 90%;
   padding: 30px;
   border-radius: 12px;
@@ -36,15 +36,18 @@ body {
   align-items: center; /* Align items vertically */
   margin-bottom: 20px;
   justify-content: center; /* Center header content */
+  flex-wrap: nowrap; /* Prevent wrapping */
+  margin-right: 50px;
 }
 
 .title {
   font-size: 3.5em;
   font-weight: 800;
   color: #1e3a8a; /* Deep Blue */
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Rockwell', serif;
   text-transform: uppercase;
   margin-right: 20px; /* Space between title and logo */
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 .subtitle {
@@ -56,9 +59,10 @@ body {
 
 /* Logo Styling */
 .logo {
-  width: 250px; /* Adjusted to fit better beside the title */
+  width: 200px; /* Adjusted to fit better beside the title */
   height: auto; /* Maintain aspect ratio */
-  margin-left: 20px; /* Space between logo and header */
+  margin-left: 50px; /* Space between logo and header */
+  margin-right: 20px; /* Space between logo and header */
   border-radius: 0%;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
@@ -92,7 +96,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
+  /* gap: 0px; */
   margin-bottom: 20px;
 }
 
@@ -100,14 +104,15 @@ body {
   display: block;
   margin: 10px auto;
   padding: 10px;
-  border: 2px solid #4caf50;
+  border: 2px solid #1e3a8a;
   border-radius: 5px;
   cursor: pointer;
   background-color: white;
+  margin-left: 80px;
 }
 
 .upload-btn {
-  padding: 12px 30px;
+  /* padding: 12px 30px; */
   background-color: #1e3a8a; /* Deep Blue */
   color: white;
   border: none;
@@ -115,6 +120,7 @@ body {
   font-size: 1.2em;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
+  margin-right: 215px;
 }
 
 .upload-btn:hover {
