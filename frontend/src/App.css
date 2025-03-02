@@ -205,3 +205,9 @@ button:hover {
     font-size: 1em;
   }
 }
+.danger {
+  background-color: #f8d7da; /* Light red background */
+  color: #ff0019;            /* Dark red text */
+  font-weight: bold;
+  border: 1px solid #f5c6cb;
+}

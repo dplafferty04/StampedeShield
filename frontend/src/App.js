@@ -120,19 +120,20 @@ function App() {
 
           {/* Quadrant Section */}
           <div className="quadrant-section">
-            <h3>Live Quadrant Counts (12 Regions):</h3>
-            {Object.keys(quadrantCounts).length > 0 ? (
-              <div className="quadrant-grid">
-                {Object.entries(quadrantCounts).map(([key, value]) => (
-                  <div key={key} className="quadrant-cell">
-                    <p>{key}: {value}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p>No quadrant data available yet</p>
-            )}
-          </div>
+  <h3>Live Quadrant Counts (12 Regions):</h3>
+  {Object.keys(quadrantCounts).length > 0 ? (
+    <div className="quadrant-grid">
+      {Object.entries(quadrantCounts).map(([key, value]) => (
+        <div key={key} className={`quadrant-cell ${dangerZones.includes(key) ? 'danger' : ''}`}>
+          <p>{key}: {value}</p>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p>No quadrant data available yet</p>
+  )}
+</div>
+
 
           {/* Display Danger Zones if available */}
           {dangerZones.length > 0 && (
