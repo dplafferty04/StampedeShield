@@ -11,8 +11,6 @@ function App() {
   
   // States for upload mode
   const [selectedFile, setSelectedFile] = useState(null);
-  const [videoURL, setVideoURL] = useState(null);
-  const [heatmapURL, setHeatmapURL] = useState(null);
   const [result, setResult] = useState(null);
   
   // Common states
@@ -41,16 +39,12 @@ function App() {
     setPeopleCount(0);
     setProgress(0);
     
-    // Keep the original video URL for later display
-    setVideoURL(URL.createObjectURL(selectedFile));
-
     const formData = new FormData();
     formData.append("video", selectedFile);
 
     try {
       const response = await axios.post("http://127.0.0.1:8000/detect/", formData);
       setResult(response.data);
-      setHeatmapURL(response.data.heatmap_video_url || "https://www.w3schools.com/html/mov_bbb.mp4");
       
       // Reset video time to 0 when processing is done
       if (originalVideoRef.current) {
@@ -149,27 +143,11 @@ function App() {
             </div>
           </div>
 
-          {/* Bottom Section: Original Video & AI Heatmap */}
-          <div className="video-processing-section">
-            {videoURL && (
-              <div className="video-container">
-                <h3>Original Uploaded Video</h3>
-                <video ref={originalVideoRef} src={videoURL} controls autoPlay muted className="video-player" />
-              </div>
-            )}
-            {heatmapURL && (
-              <div className="video-container">
-                <h3>AI Generated Heatmap</h3>
-                <video ref={heatmapVideoRef} src={heatmapURL} controls autoPlay muted className="video-player" />
-              </div>
-            )}
-          </div>
 
           {result && (
             <div className="result-section">
               <h2>Final Detection Results 📊</h2>
               <div className="result-content">
-                <p><strong>Total People Detected:</strong> {result.total_people_detected}</p>
                 <p><strong>Average People Per Frame:</strong> {result.average_people_per_frame}</p>
                 <p><strong>Processing Time:</strong> {result.processing_time_seconds} sec</p>
               </div>
