@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./App.css";
 
@@ -13,12 +13,14 @@ function App() {
   const [peopleCount, setPeopleCount] = useState(0);
   const [currentFrame, setCurrentFrame] = useState(0);
 
+  const originalVideoRef = useRef(null);
+  const heatmapVideoRef = useRef(null);
+
   useEffect(() => {
     const ws = new WebSocket("ws://127.0.0.1:8000/ws");
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      // Ensure the frame data is correctly used in a data URL
       setLatestFrame(`data:image/jpeg;base64,${data.frame}`);
       setPeopleCount(data.people_in_frame);
       setProgress(data.progress.toFixed(2));
@@ -27,13 +29,8 @@ function App() {
       }
     };
 
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-
-    ws.onclose = () => {
-      console.warn("WebSocket closed.");
-    };
+    ws.onerror = (error) => console.error("WebSocket error:", error);
+    ws.onclose = () => console.warn("WebSocket closed.");
 
     return () => ws.close();
   }, []);
@@ -50,7 +47,7 @@ function App() {
     setPeopleCount(0);
     setProgress(0);
     setCurrentFrame(0);
-    setVideoURL(URL.createObjectURL(selectedFile)); // Show original video immediately
+    setVideoURL(URL.createObjectURL(selectedFile));
 
     const formData = new FormData();
     formData.append("video", selectedFile);
@@ -66,6 +63,52 @@ function App() {
 
     setLoading(false);
   };
+
+  // Synchronize videos
+  const syncVideos = (sourceVideo, targetVideo) => {
+    if (!sourceVideo || !targetVideo) return;
+
+    targetVideo.currentTime = sourceVideo.currentTime;
+    if (sourceVideo.paused !== targetVideo.paused) {
+      sourceVideo.paused ? targetVideo.pause() : targetVideo.play();
+    }
+  };
+
+  useEffect(() => {
+    const originalVideo = originalVideoRef.current;
+    const heatmapVideo = heatmapVideoRef.current;
+
+    if (originalVideo && heatmapVideo) {
+      const handleSync = () => syncVideos(originalVideo, heatmapVideo);
+      const handleTimeUpdate = () => {
+        if (Math.abs(originalVideo.currentTime - heatmapVideo.currentTime) > 0.1) {
+          heatmapVideo.currentTime = originalVideo.currentTime;
+        }
+      };
+
+      originalVideo.addEventListener("play", handleSync);
+      originalVideo.addEventListener("pause", handleSync);
+      originalVideo.addEventListener("seeked", handleSync);
+      originalVideo.addEventListener("timeupdate", handleTimeUpdate);
+
+      heatmapVideo.addEventListener("play", handleSync);
+      heatmapVideo.addEventListener("pause", handleSync);
+      heatmapVideo.addEventListener("seeked", handleSync);
+      heatmapVideo.addEventListener("timeupdate", handleTimeUpdate);
+
+      return () => {
+        originalVideo.removeEventListener("play", handleSync);
+        originalVideo.removeEventListener("pause", handleSync);
+        originalVideo.removeEventListener("seeked", handleSync);
+        originalVideo.removeEventListener("timeupdate", handleTimeUpdate);
+
+        heatmapVideo.removeEventListener("play", handleSync);
+        heatmapVideo.removeEventListener("pause", handleSync);
+        heatmapVideo.removeEventListener("seeked", handleSync);
+        heatmapVideo.removeEventListener("timeupdate", handleTimeUpdate);
+      };
+    }
+  }, [videoURL, heatmapURL]);
 
   return (
     <div className="container">
@@ -121,11 +164,11 @@ function App() {
         <div className="video-section">
           <div className="video-container">
             <h3>Original Video</h3>
-            <video src={videoURL} controls className="video-player" />
+            <video ref={originalVideoRef} src={videoURL} controls className="video-player" />
           </div>
           <div className="video-container">
             <h3>AI Generated Heatmap</h3>
-            <video src={heatmapURL} controls className="video-player" />
+            <video ref={heatmapVideoRef} src={videoURL} controls className="video-player" />
           </div>
         </div>
       )}
