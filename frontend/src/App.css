@@ -1,38 +1,235 @@
-.App {
-  text-align: center;
+/* Global Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #4E6E81; /* Soft gray background */
+  color: #333; /* Dark text for readability */
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+/* Container - Expanded width */
+.container {
+  background: white;
+  max-width: 1200px; /* Adjusted max-width for a wider container */
+  width: 90%;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  top: 0;
+  margin-top: 30px;
+}
+
+/* Header Section */
+.header {
+  display: flex; /* Use flexbox for the header */
+  align-items: center; /* Align items vertically */
+  margin-bottom: 20px;
+  justify-content: center; /* Center header content */
+  flex-wrap: nowrap; /* Prevent wrapping */
+  margin-right: 50px;
+}
+
+.title {
+  font-size: 3.5em;
+  font-weight: 800;
+  color: #1e3a8a; /* Deep Blue */
+  font-family: 'Rockwell', serif;
+  text-transform: uppercase;
+  margin-right: 0px; /* Space between title and logo */
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.subtitle {
+  font-size: 1.5em;
+  color: #555;
+  font-family: 'Roboto', sans-serif;
+  margin-bottom: 30px;
+}
+
+/* Logo Styling */
+.logo {
+  width: 100px; /* Adjusted to fit better beside the title */
+  height: auto; /* Maintain aspect ratio */
+  margin-left: 50px; /* Space between logo and header */
+  margin-right: 20px; /* Space between logo and header */
+  border-radius: 0%;
+}
+
+/* Mode Buttons - Clean with rounded edges */
+.mode-selection {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.mode-btn {
+  font-size: 1.2em;
+  padding: 12px 30px;
+  margin: 0 15px;
+  cursor: pointer;
+  background-color: #1e3a8a; /* Bright blue */
   color: white;
+  border: none;
+  border-radius: 30px;
+  transition: transform 0.2s, background-color 0.3s;
 }
 
-.App-link {
-  color: #61dafb;
+.mode-btn:hover {
+  background-color: #1a3276; /* Darker blue on hover */
+  transform: scale(1.05); /* Slight hover animation */
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Upload Section */
+.upload-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* gap: 0px; */
+  margin-bottom: 20px;
+}
+
+.file-input {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  border: 2px solid #1e3a8a;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: white;
+  margin-left: 80px;
+}
+
+.upload-btn {
+  /* padding: 12px 30px; */
+  background-color: #1e3a8a; /* Deep Blue */
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  margin-right: 215px;
+}
+
+.upload-btn:hover {
+  background-color: #1e2a47; /* Darker blue on hover */
+  transform: scale(1.05);
+}
+
+/* Loading & Progress */
+.loading-text {
+  text-align: center;
+  font-size: 1.5em;
+  color: #888;
+  margin-top: 20px;
+}
+
+.progress-bar {
+  background-color: #f3f3f3;
+  border-radius: 25px;
+  height: 15px;
+  margin-top: 20px;
+}
+
+.progress-fill {
+  background-color: #4caf50;
+  height: 100%;
+  border-radius: 25px;
+  transition: width 0.5s ease;
+}
+
+/* Results Section */
+.result-section {
+  margin-top: 30px;
+}
+
+.result-section h2 {
+  font-size: 2.5em;
+  color: #27ae60; /* Green success color */
+  margin-bottom: 20px;
+}
+
+/* Video Section */
+
+
+.video-player, .frame-preview {
+  width: 900px;
+  margin:  auto;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.video-container video {
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+.video-frame-section{
+  width:90%;
+  height: auto;
+  margin:auto;
+}
+
+/* General Button Styling */
+button {
+  padding: 10px 20px;
+  background-color: #3498db; /* Blue */
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
   }
-  to {
-    transform: rotate(360deg);
+
+  .title {
+    font-size: 2.5em;
+  }
+
+  .mode-btn {
+    font-size: 1em;
+  }
+
+  .upload-btn {
+    font-size: 1em;
   }
 }
+.danger {
+  background-color: #f8d7da; /* Light red background */
+  color: #ff0019;            /* Dark red text */
+  font-weight: bold;
+  border: 1px solid #f5c6cb;
+}
+
+  .header {
+    flex-direction: column; /* Stack logo and title on smaller screens */
+    align-items: center; /* Center items */
+  }
+
+  .title {
+    margin-right: 0; /* Remove right margin when stacked */
+  }
+
