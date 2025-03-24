@@ -1,3 +1,5 @@
+// This file manages the home page component of our react project.
+
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import "./App.css";
