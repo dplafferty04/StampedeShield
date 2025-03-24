@@ -94,7 +94,7 @@ async def detect_frame(image: UploadFile = File(...)):
     # Generate a heatmap overlay on the frame
     overlay = generate_heatmap_overlay(frame, results, height, width)
     
-    # Encode the overlay image to a base64 string
+    # Encode the overlay image to a base64 string, this is to send through the websocket to the frontend
     _, buffer = cv2.imencode(".jpg", overlay)
     frame_base64 = base64.b64encode(buffer).decode("utf-8")
 
